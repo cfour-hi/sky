@@ -1,4 +1,4 @@
-import { Sky } from '@packages/sky/editor/create-sky';
+import { Sky } from '@packages/sky/editor';
 import Selecto, { OnDragStart, OnSelect } from 'selecto';
 import { getElementInfo } from 'moveable';
 

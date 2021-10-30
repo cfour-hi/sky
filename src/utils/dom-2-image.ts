@@ -119,8 +119,8 @@ export function downloadBlob(
   blob: Blob,
   { filename = Date.now().toString() } = {},
 ) {
-  if (navigator && navigator.msSaveOrOpenBlob) {
-    return navigator.msSaveOrOpenBlob(blob);
+  if (navigator && (navigator as any).msSaveOrOpenBlob) {
+    return (navigator as any).msSaveOrOpenBlob(blob);
   }
 
   // For other browsers:

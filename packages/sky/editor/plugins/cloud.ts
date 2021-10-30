@@ -214,7 +214,7 @@ export default function createCloud(sky: Sky) {
       ?.classList.remove('sky-cloud-select');
 
     if (oldCloud) {
-      sky.cloudVM[oldCloud.id].setupState.skyHooks?.moveable?.onLeaveSelect?.();
+      sky.cloudVM[oldCloud.id]?.exposed?.skyHooks?.moveable?.onLeaveSelect?.();
       // const vm = sky.editor.getBirdVMById(oldCloud.id);
       // vm?.skyHooks?.moveable?.onLeaveSelect?.();
     }
@@ -224,7 +224,7 @@ export default function createCloud(sky: Sky) {
         .queryCloudElementById(cloud.id)
         ?.classList.add('sky-cloud-select');
 
-      sky.cloudVM[cloud.id].setupState?.skyHooks?.moveable?.onEnterSelect?.();
+      sky.cloudVM[cloud.id].exposed?.skyHooks?.moveable?.onEnterSelect?.();
       // const vm = sky.editor.getBirdVMById(cloud.id);
       // vm?.skyHooks?.moveable?.onEnterSelect?.();
     }
