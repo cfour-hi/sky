@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
+}
+
+:root {
+  --app-header-height: 55px;
+  --aside-category-width: 65px;
+  --aside-control-width: 276px;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
