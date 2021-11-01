@@ -2,6 +2,12 @@
   <div class="aside-category"></div>
 </template>
 
+<script>
+export default {
+  name: 'AsideCategory',
+};
+</script>
+
 <style lang="scss" scoped>
 .aside-category {
   position: absolute;

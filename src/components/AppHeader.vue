@@ -9,17 +9,19 @@
     <SkyButton @click="handleSave">Save</SkyButton>
     <SkyButton @click="handleAdaptive">Adaptive</SkyButton>
     <SkyButton @click="handleAddText">Add Text</SkyButton>
+    <SkyButton @click="handleAddImage">Add Image</SkyButton>
     <SkyButton @click="handleGenerateImage">Generate Image</SkyButton>
   </div>
 </template>
 
 <script setup>
-import { onMounted, nextTick, inject } from 'vue';
+import { inject } from 'vue';
 import { processPSD2Sky } from '@/plugins/psd';
 import { saveTemplate2Local } from '@/plugins/template';
 import { adaptiveZoom } from '@/utils/zoom';
-import { addTextCloud } from '@/components/clouds/text/config';
 import { dom2Svg, svg2ImageBlob } from '@/utils/dom-2-image';
+import createTextCloud from '@/components/clouds/text/create';
+import createImageCloud from '@/components/clouds/image/create';
 
 const sky = inject('sky');
 
@@ -66,7 +68,11 @@ function handleSave() {
 }
 
 function handleAddText() {
-  addTextCloud();
+  sky.cloud.push(sky.cloud.create(createTextCloud()));
+}
+
+function handleAddImage() {
+  sky.cloud.push(sky.cloud.create(createImageCloud()));
 }
 
 async function handleGenerateImage() {

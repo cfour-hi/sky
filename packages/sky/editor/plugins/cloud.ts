@@ -175,7 +175,7 @@ export default function createCloud(sky: Sky) {
   };
 
   module.queryCloudElementById = (id) => {
-    return sky.vm.ctx.$el.querySelector(`[data-cloud-id="${id}"]`);
+    return sky.vm.subTree.el.querySelector(`[data-cloud-id="${id}"]`);
   };
 
   const getSelectCloud = (event: any) => {
@@ -237,8 +237,8 @@ export default function createCloud(sky: Sky) {
         pid: '',
         width: 100,
         height: 100,
-        top: sky.state.height / 2 - attrs.height / 2,
-        left: sky.state.width / 2 - attrs.width / 2,
+        top: sky.state.height / 2 - (attrs?.height ?? 0 / 2),
+        left: sky.state.width / 2 - (attrs?.width ?? 0 / 2),
         angle: 0,
         lock: false,
         opacity: 1,

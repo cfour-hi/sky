@@ -28,7 +28,7 @@
         <SkyTabPanel class="bar bar__color" label="颜色">
           <BarColorPicker
             v-model:value="background"
-            default-color="#ffffffff"
+            default-color="#ffffff00"
             :modes="['纯色', '渐变']"
           />
         </SkyTabPanel>

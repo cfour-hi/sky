@@ -3,6 +3,7 @@ import { CLOUD_TYPE } from '@/constants';
 
 export interface TextItem {
   text: string;
+  [porpname: string]: unknown;
 }
 
 export interface CloudTextPrivate {
@@ -24,9 +25,9 @@ export interface CloudTextPrivate {
   [propsName: string]: unknown;
 }
 
-export const addTextCloud = (props = {}) => {
+export default function createTextCloud(props = {}) {
   const { scale } = sky.state;
-  const textCloud: CloudTextPrivate = {
+  const cloudText: CloudTextPrivate = {
     fontFamily: 'SourceHanSansSC-Regular',
     fontSize: 60,
     textAlign: 'left',
@@ -39,13 +40,12 @@ export const addTextCloud = (props = {}) => {
     letterSpacing: 0,
     shadows: [],
     strokes: [],
-    text: '0点1击2编3辑4文5字6',
-    texts: [{ text: '0点1击2编3辑4文5字6' }],
+    text: '点击编辑文字',
+    texts: [{ text: '点击编辑文字' }],
     type: CLOUD_TYPE.text,
     width: 360 * scale,
     height: 60 * scale,
     ...props,
   };
-
-  sky.cloud.push(sky.cloud.create(textCloud));
-};
+  return cloudText;
+}

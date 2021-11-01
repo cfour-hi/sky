@@ -1,63 +1,3 @@
-<script>
-export default {
-  name: 'SkyTabs',
-};
-</script>
-
-<script setup>
-import {
-  ref,
-  useSlots,
-  reactive,
-  onMounted,
-  watch,
-  getCurrentInstance,
-} from 'vue';
-
-const props = defineProps({
-  value: {
-    type: String,
-    required: true,
-  },
-});
-const emit = defineEmits(['update:value', 'change']);
-
-let tabWidth = 0;
-const tabs = ref([]);
-const sliderStyle = reactive({ width: 0, left: 0 });
-
-let preActiveTabVM = null;
-
-function doChange(value) {
-  const index = tabs.value.findIndex((vm) => {
-    return vm.props.label === value;
-  });
-  sliderStyle.left = `${tabWidth * index}%`;
-
-  preActiveTabVM = tabs.value[index];
-  preActiveTabVM.exposed?.changeActive?.(true);
-}
-
-function handleClickTabTitle(tab, index) {
-  emit('update:value', tab.props.label);
-  emit('change', tab.props.label);
-
-  sliderStyle.left = `${tabWidth * index}%`;
-
-  preActiveTabVM?.exposed?.changeActive?.(false);
-  preActiveTabVM = tabs.value[index];
-  preActiveTabVM.exposed.changeActive(true);
-}
-
-watch(() => props.value, doChange);
-
-onMounted(() => {
-  tabWidth = 100 / tabs.value.length;
-  sliderStyle.width = `${tabWidth}%`;
-  doChange(props.value);
-});
-</script>
-
 <template>
   <div class="sky-tabs">
     <div class="sky-tabs__header">
@@ -81,6 +21,61 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  name: 'SkyTabs',
+};
+</script>
+
+<script setup>
+import { ref, reactive, onMounted, watch } from 'vue';
+
+const props = defineProps({
+  value: {
+    type: String,
+    required: true,
+  },
+});
+const emit = defineEmits(['update:value', 'change']);
+
+let tabWidth = 0;
+const tabs = ref([]);
+const sliderStyle = reactive({ width: 0, left: 0 });
+
+let preActiveTabVM = null;
+
+function changeActiveTab(value) {
+  const index = tabs.value.findIndex((vm) => {
+    return vm.props.label === value;
+  });
+  sliderStyle.left = `${tabWidth * index}%`;
+
+  preActiveTabVM = tabs.value[index];
+  preActiveTabVM.exposed?.changeActive?.(true);
+}
+
+function handleClickTabTitle(tab, index) {
+  emit('update:value', tab.props.label);
+  emit('change', tab.props.label);
+
+  sliderStyle.left = `${tabWidth * index}%`;
+
+  preActiveTabVM?.exposed?.changeActive?.(false);
+  preActiveTabVM = tabs.value[index];
+  preActiveTabVM.exposed.changeActive(true);
+}
+
+watch(() => props.value, changeActiveTab);
+
+onMounted(() => {
+  tabWidth = 100 / tabs.value.length;
+  sliderStyle.width = `${tabWidth}%`;
+  changeActiveTab(props.value);
+});
+
+defineExpose({ tabs });
+</script>
 
 <style lang="scss" scoped>
 .sky-tabs__header {

@@ -1,3 +1,9 @@
+<template>
+  <div class="sky-tab-panel" :style="rootStyle">
+    <slot />
+  </div>
+</template>
+
 <script>
 export default {
   name: 'SkyTabPanel',
@@ -5,12 +11,13 @@ export default {
 </script>
 
 <script setup>
-import { computed, getCurrentInstance, onMounted, ref } from 'vue';
+import { computed, getCurrentInstance, ref } from 'vue';
 
 const vm = getCurrentInstance();
-vm.parent.setupState.tabs.push(vm);
+vm.parent.exposed.tabs.value.push(vm);
 
-const props = defineProps({
+defineProps({
+  // SkyTabs 会用到 label
   label: {
     type: String,
     required: true,
@@ -30,9 +37,3 @@ defineExpose({
   changeActive,
 });
 </script>
-
-<template>
-  <div class="sky-tab-panel" :style="rootStyle">
-    <slot />
-  </div>
-</template>

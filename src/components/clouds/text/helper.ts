@@ -1,5 +1,5 @@
 import { CloudText } from './type';
-import { TextItem } from './config';
+import { TextItem } from './create';
 
 interface ProxyCloud extends CloudText {
   isMultipleColor?: boolean;

@@ -150,7 +150,7 @@ function handleClickDelete() {
           }
 
           &.active {
-            @apply text-red-700;
+            @apply text-blue-700;
           }
         }
       }
