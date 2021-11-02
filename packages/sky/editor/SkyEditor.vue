@@ -1,3 +1,17 @@
+<template>
+  <div ref="elRoot" class="sky-editor" :style="rootStyle">
+    <SkyRenderer
+      ref="elSkyRenderer"
+      :background="sky.state.background"
+      :clouds="sky.state.clouds"
+      :scale="sky.state.scale"
+      @mousedown="handleMousedownLeft"
+    />
+
+    <ControlPanelContainer class="sky-control-panel" />
+  </div>
+</template>
+
 <script>
 export default {
   name: 'SkyEditor',
@@ -55,6 +69,7 @@ async function mousemove() {
 
   await sky.moveable.setTarget(mousedownTarget);
 
+  console.log('mousedownEvent', mousedownEvent);
   sky.moveable.instance.dragStart(mousedownEvent);
 }
 
@@ -83,20 +98,6 @@ function handleMousedownLeft(event) {
 
 defineExpose({ elSkyRenderer });
 </script>
-
-<template>
-  <div ref="elRoot" class="sky-editor" :style="rootStyle">
-    <sky-renderer
-      ref="elSkyRenderer"
-      :background="sky.state.background"
-      :clouds="sky.state.clouds"
-      :scale="sky.state.scale"
-      @mousedown="handleMousedownLeft"
-    />
-
-    <ControlPanelContainer class="sky-control-panel" />
-  </div>
-</template>
 
 <style scoped>
 .sky-editor {

@@ -1,3 +1,17 @@
+<template>
+  <div class="sky-renderer" :style="rootStyle">
+    <div class="sky-background" :style="backgroundStyle"></div>
+
+    <component
+      v-for="cloud in clouds"
+      :key="cloud.id"
+      :is="toComponent(cloud)"
+      :cloud="cloud"
+      v-bind="$attrs"
+    />
+  </div>
+</template>
+
 <script>
 export default {
   name: 'SkyRenderer',
@@ -7,7 +21,6 @@ export default {
 
 <script setup>
 import { computed, inject } from 'vue';
-import { SKY_CLOUD_LOCK } from '../constants';
 import Clouds from './Clouds.vue';
 import Cloud from './Cloud.vue';
 
@@ -36,21 +49,11 @@ const backgroundStyle = computed(() => {
     opacity: props.background.opacity ?? 1,
   };
 });
+
+function toComponent(cloud) {
+  if (cloud.type === 'clouds') {
+    return Clouds;
+  }
+  return Cloud;
+}
 </script>
-
-<template>
-  <div class="sky-renderer" :style="rootStyle">
-    <div class="sky-background" :style="backgroundStyle"></div>
-
-    <template v-for="cloud in clouds" v-memo="[cloud.id]">
-      <Clouds
-        v-if="cloud.type === 'clouds'"
-        :key="cloud.id"
-        :cloud="cloud"
-        v-bind="$attrs"
-      />
-
-      <Cloud v-else :key="cloud.id" :cloud="cloud" v-bind="$attrs" />
-    </template>
-  </div>
-</template>

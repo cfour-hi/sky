@@ -4,7 +4,6 @@
     class="sky-cloud"
     :class="toCloudClass(cloud)"
     :style="rootStyle"
-    :id="cloud.id"
     :data-cloud-id="cloud.id"
   >
     <component

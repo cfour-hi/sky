@@ -2,7 +2,6 @@
   <div
     :class="toCloudClass(cloud)"
     class="sky-cloud sky-clouds sky-bird"
-    :id="cloud.id"
     :data-cloud-id="cloud.id"
   >
     <!-- resize 时 scale -->

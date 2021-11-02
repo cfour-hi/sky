@@ -4,7 +4,6 @@
     class="cloud-text__editor"
     :style="rootStyle"
     @click="onClick"
-    @mouseup="onMouseup"
   >
     <CloudText :cloud="cloud" :readonly="readonly" />
   </div>
@@ -127,11 +126,6 @@ function onClick(event) {
 function onChangeTarget() {
   readonly.value = true;
   props.cloud.text = elRoot.value.textContent;
-}
-
-function onMouseup() {
-  // TODO: 判断是否为多种颜色
-  // const marks = Editor.marks(this.$editor);
 }
 
 function onResizeStart(event) {
