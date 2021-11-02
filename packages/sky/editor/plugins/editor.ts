@@ -49,9 +49,7 @@ export default function createEditor(sky: Sky) {
     sky.state.height = scaleSize4Pre(sky.state.height, sky.state.scale, scale);
 
     // sky-editor 宽高样式使用 computed
-    sky.vm.ctx.$nextTick(() => {
-      sky.moveable.instance.updateRect();
-    });
+    setTimeout(sky.moveable.instance.updateRect);
   };
 
   return module;

@@ -1,13 +1,14 @@
 <template>
   <div class="app-header">
     <input type="file" @change="handleChange" />
-    <SkyButton @click="handleHistoryBack">Back</SkyButton>
-    <SkyButton @click="handleHistoryForward">Forward</SkyButton>
+    <SkyButton @click="handlePSD">PSD</SkyButton>
+    <!-- <SkyButton @click="handleHistoryBack">Back</SkyButton> -->
+    <!-- <SkyButton @click="handleHistoryForward">Forward</SkyButton> -->
     <SkyButton @click="handleViewportSub">viewport-</SkyButton>
     <SkyButton @click="handleViewport1">{{ sky.state.scale }}</SkyButton>
     <SkyButton @click="handleViewportPlus">viewport+</SkyButton>
-    <SkyButton @click="handleSave">Save</SkyButton>
     <SkyButton @click="handleAdaptive">Adaptive</SkyButton>
+    <SkyButton @click="handleSave">Save</SkyButton>
     <SkyButton @click="handleAddText">Add Text</SkyButton>
     <SkyButton @click="handleAddImage">Add Image</SkyButton>
     <SkyButton @click="handleGenerateImage">Generate Image</SkyButton>
@@ -29,8 +30,8 @@ import { DEFAULT_FONT_FAMILY } from '@/constants/index';
 const sky = inject('sky');
 const fontStore = useFontStore();
 
-async function handleChange(e) {
-  const data = await processPSD2Sky(e.target.files[0]);
+async function loadPSD(file) {
+  const data = await processPSD2Sky(file);
   const clouds = data.clouds.map((cloud) => sky.cloud.create(cloud));
   clouds
     .filter((cloud) => cloud.type === CLOUD_TYPE.text)
@@ -47,6 +48,17 @@ async function handleChange(e) {
 
   await nextTick();
   handleAdaptive();
+}
+
+async function handlePSD() {
+  const response = await fetch('odyssey-demo.psd');
+  const blob = await response.blob();
+  const file = new File([blob], 'odyssey-demo.psd');
+  await loadPSD(file);
+}
+
+async function handleChange(e) {
+  await loadPSD(e.target.files[0]);
 }
 
 function handleAdaptive() {

@@ -1,6 +1,6 @@
 import { Sky } from '../index';
 import { lookUpTopCloudElement } from '../helper';
-import { genRandomCode, withCtrlOrShiftKey } from '../../tool';
+import { genRandomCode, sleep, withCtrlOrShiftKey } from '../../tool';
 import { lookUpParentCloudElement } from '../helper';
 import { n2px } from '../../tool';
 
@@ -254,8 +254,7 @@ export default function createCloud(sky: Sky) {
   module.push = async (...clouds) => {
     sky.state.clouds.push(...clouds);
 
-    await sky.vm.ctx.$nextTick();
-
+    await sleep();
     await sky.moveable.setTarget(
       clouds.map(
         (cloud) => sky.cloud.queryCloudElementById(cloud.id) as HTMLElement,
