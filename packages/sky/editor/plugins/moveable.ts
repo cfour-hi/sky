@@ -169,7 +169,7 @@ export default function createMoveable(sky: Sky) {
 
       const enterTargets = difference(target, oldTarget);
       enterTargets.forEach((target) => {
-        const vm = sky.birdVM[target.id];
+        const vm = sky.birdVM[target.dataset.cloudId];
         vm?.exposed?.skyHooks?.moveable?.onEnterTarget?.();
       });
 
@@ -191,7 +191,7 @@ export default function createMoveable(sky: Sky) {
       if (!Array.isArray(oldTarget)) return;
 
       oldTarget.forEach((target) => {
-        const vm = sky.birdVM[target.id];
+        const vm = sky.birdVM[target.dataset.cloudId];
         vm?.exposed?.skyHooks?.moveable?.onLeaveTarget?.();
       });
     }
@@ -258,8 +258,9 @@ export default function createMoveable(sky: Sky) {
     target.style.top = n2px(top);
     target.style.left = n2px(left);
 
-    const cloud = sky.state.clouds.find((cloud) => cloud.id === target.id);
-    if (!cloud) return;
+    const cloud = sky.state.clouds.find(
+      (cloud) => cloud.id === target.dataset.cloudId,
+    ) as Cloud;
 
     cloud.top = top;
     cloud.left = left;

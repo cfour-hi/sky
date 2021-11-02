@@ -1,10 +1,12 @@
-import { CloudText } from '@/types/cloud';
+import { CloudText } from '@/components/clouds/text/create';
 import { sky } from '@/plugins/sky';
 import { skyRendererStyle } from '@packages/sky/renderer';
 import cloudImageCSS from '@/components/clouds/image/index.css';
 import cloudTextCSS from '@/components/clouds/text/index.css';
 import { generateFontStyle } from '@/utils/font';
 import { useFontStore } from '@/stores/font';
+import { blob2B64 } from './dataer';
+import { CLOUD_TYPE } from '@/constants';
 
 function compression(str: string) {
   return str.replace(/\n+/g, '').replace(/\/\*.+?\*\//g, '');
@@ -15,49 +17,67 @@ const svgCSS =
   compression(cloudImageCSS) +
   compression(cloudTextCSS);
 
-function toFontCssText() {
-  let text = '';
-  const textClouds = sky.state.clouds.filter((cloud) => cloud.type === 'text');
-  const fontnames = [
-    ...new Set(textClouds.map((cloud) => (cloud as CloudText).fontFamily)),
-  ];
-  const fontStore = useFontStore();
-  fontnames.forEach((name) => {
-    text += generateFontStyle(name, fontStore.download[name]).outerHTML;
+export function filterSkyFonts() {
+  const fonts: string[] = [];
+  const textClouds = sky.state.clouds.filter(
+    (cloud) => cloud.type === CLOUD_TYPE.text,
+  );
+
+  (textClouds as unknown as CloudText[]).forEach((cloud) => {
+    if (cloud.fontFamily && !fonts.includes(cloud.fontFamily)) {
+      fonts.push(cloud.fontFamily);
+    }
+    cloud.texts.forEach((text) => {
+      if (text.fontFamily && !fonts.includes(text.fontFamily)) {
+        fonts.push(text.fontFamily);
+      }
+    });
   });
+
+  return fonts;
+}
+
+function toFontsStyle() {
+  let text = '';
+  const fontStore = useFontStore();
+
+  const fonts = filterSkyFonts();
+  fonts.forEach((font) => {
+    text += generateFontStyle(font, fontStore.download[font]).outerHTML;
+  });
+
   return text;
 }
 
-export function dom2Svg(el: HTMLElement) {
-  // const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  // svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  // svg.setAttribute('width', el.clientWidth);
-  // svg.setAttribute('height', el.clientHeight);
+function convertImage2Base64(el: HTMLElement) {
+  const pa: Promise<void>[] = [];
+  const imageClouds = sky.state.clouds.filter(
+    (cloud) => cloud.type === CLOUD_TYPE.image && !cloud.src.startsWith('data'),
+  );
 
-  // const style = document.createElement('style');
-  // style.innerText = svgCSS;
+  imageClouds.forEach((cloud) => {
+    const elImg = el.querySelector(
+      `[data-cloud-id="${cloud.id}"] img.image__content`,
+    );
+    pa.push(toBase64(elImg as HTMLImageElement));
+  });
 
-  // const foreighObject = document.createElementNS(
-  //   'http://www.w3.org/2000/svg',
-  //   'foreignObject',
-  // );
-  // foreighObject.setAttribute('x', 0);
-  // foreighObject.setAttribute('y', 0);
-  // foreighObject.setAttribute('width', '100%');
-  // foreighObject.setAttribute('height', '100%');
-  // foreighObject.innerHTML = new XMLSerializer().serializeToString(
-  //   el.cloneNode(true),
-  // );
+  return Promise.all(pa);
 
-  // svg.appendChild(style);
-  // svg.appendChild(foreighObject);
+  async function toBase64(img: HTMLImageElement) {
+    const { src } = img;
+    const base64 = await imageURL2Base64(src);
+    img.src = base64;
+  }
+}
 
-  // return svg;
+export async function dom2Svg(el: HTMLElement) {
+  const cloneEl = el.cloneNode(true) as HTMLElement;
 
-  // const el = document.querySelector('.sky-renderer') as HTMLElement;
-  const cloneNode = el.cloneNode(true);
+  await convertImage2Base64(cloneEl);
+
   const xmlSerializer = new XMLSerializer();
-  const html = xmlSerializer.serializeToString(cloneNode);
+  const html = xmlSerializer.serializeToString(cloneEl);
 
   return `
     <svg
@@ -66,7 +86,9 @@ export function dom2Svg(el: HTMLElement) {
       height='${el.clientHeight}'
     >
       <style>
+        ${svgCSS}
       </style>
+      ${toFontsStyle()}
       <foreignObject
         x='0'
         y='0'
@@ -145,3 +167,35 @@ export function downloadBlob(
     link.remove();
   }, 100);
 }
+
+export async function imageURL2Base64(url: string) {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  const base64 = await blob2B64(blob);
+  return base64;
+}
+
+// const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+// svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+// svg.setAttribute('width', el.clientWidth);
+// svg.setAttribute('height', el.clientHeight);
+
+// const style = document.createElement('style');
+// style.innerText = svgCSS;
+
+// const foreighObject = document.createElementNS(
+//   'http://www.w3.org/2000/svg',
+//   'foreignObject',
+// );
+// foreighObject.setAttribute('x', 0);
+// foreighObject.setAttribute('y', 0);
+// foreighObject.setAttribute('width', '100%');
+// foreighObject.setAttribute('height', '100%');
+// foreighObject.innerHTML = new XMLSerializer().serializeToString(
+//   el.cloneNode(true),
+// );
+
+// svg.appendChild(style);
+// svg.appendChild(foreighObject);
+
+// return svg;

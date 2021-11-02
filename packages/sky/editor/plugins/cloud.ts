@@ -18,7 +18,7 @@ export interface Cloud {
   transform?: string;
   minDistance?: number;
   clouds?: Cloud[];
-  [propsName: string]: unknown;
+  [propsName: string]: any;
 }
 
 export interface CloudPlugin {

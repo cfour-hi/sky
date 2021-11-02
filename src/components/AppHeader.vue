@@ -78,7 +78,7 @@ function handleAddImage() {
 async function handleGenerateImage() {
   console.time('handleGenerateImage');
 
-  const svg = dom2Svg(sky.vm.subTree.el.querySelector('.sky-renderer'));
+  const svg = await dom2Svg(sky.vm.subTree.el.querySelector('.sky-renderer'));
   const blob = await svg2ImageBlob(svg);
 
   console.timeEnd('handleGenerateImage');

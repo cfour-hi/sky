@@ -69,7 +69,6 @@ async function mousemove() {
 
   await sky.moveable.setTarget(mousedownTarget);
 
-  console.log('mousedownEvent', mousedownEvent);
   sky.moveable.instance.dragStart(mousedownEvent);
 }
 

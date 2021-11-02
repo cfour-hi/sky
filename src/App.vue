@@ -11,15 +11,12 @@ import AsideCategory from '@/components/AsideCategory.vue';
 import AppMain from '@/components/AppMain.vue';
 import { loadLocalTemplateData } from '@/plugins/template';
 import { useFontStore } from '@/stores/font';
+import { filterSkyFonts } from '@/utils/dom-2-image';
 
 const fontStore = useFontStore();
 const promiseFontFetch = fontStore.fetch();
 
 onMounted(async () => {
-  // SkyEditor 在 AppMain 组件内
-  // SkyEditor 的一些准备工作需要等到 mounted 执行
-  // await nextTick();
-
   const data = loadLocalTemplateData();
   if (data) {
     sky.setState(data);
@@ -27,16 +24,10 @@ onMounted(async () => {
 
   await promiseFontFetch;
 
-  sky.state.clouds
-    .filter((cloud) => cloud.type === 'text')
-    .forEach((cloud) => {
-      const font = fontStore.list.find((f) => f.name === cloud.fontFamily);
-      if (!font) {
-        cloud.fontFamily = 'SourceHanSansSC-Regular';
-        return;
-      }
-
-      fontStore.addFont2Style(font.name, font.content.woff);
-    });
+  const fontnames = filterSkyFonts();
+  fontnames.forEach((name) => {
+    const font = fontStore.list.find((f) => f.name === name);
+    fontStore.addFont2Style(name, font.content.woff);
+  });
 });
 </script>

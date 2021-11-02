@@ -13,7 +13,7 @@ const skyHooks = {
   },
 };
 
-defineExpose(skyHooks);
+defineExpose({ skyHooks });
 </script>
 
 <template>

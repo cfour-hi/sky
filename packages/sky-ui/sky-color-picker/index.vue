@@ -123,7 +123,7 @@ import {
   hexA2RGBA,
   RGBA2HexA,
 } from '../color';
-import { toGradientString, dom2Image, parseBackgroundValue } from './helper';
+import { toGradientString, parseBackgroundValue } from './helper';
 
 const props = defineProps({
   value: {
@@ -134,16 +134,6 @@ const props = defineProps({
   modes: {
     type: Array,
     default: () => ['纯色', '渐变', '图案'],
-  },
-
-  strawEl: {
-    type: HTMLElement,
-    default: document.body,
-  },
-
-  strawCss: {
-    type: String,
-    default: '',
   },
 
   defaultColor: {
@@ -466,26 +456,24 @@ function onChangeAlpha(value) {
 }
 
 async function onClickStraw() {
-  const img = await dom2Image(props.strawEl, { css: props.strawCss });
-
-  picking.value = true;
-  await nextTick();
-
-  const elStrawCanvas = document.querySelector('.sky-cp__straw-canvas');
-  const ctx = elStrawCanvas.getContext('2d');
-  const { top, left } = props.strawEl.getBoundingClientRect();
-  ctx.drawImage(
-    img,
-    left,
-    top,
-    props.strawEl.clientWidth,
-    props.strawEl.clientHeight,
-  );
+  //   const img = await dom2Image(props.strawEl, { css: props.strawCss });
+  //   picking.value = true;
+  //   await nextTick();
+  //   const elStrawCanvas = document.querySelector('.sky-cp__straw-canvas');
+  //   const ctx = elStrawCanvas.getContext('2d');
+  //   const { top, left } = props.strawEl.getBoundingClientRect();
+  //   ctx.drawImage(
+  //     img,
+  //     left,
+  //     top,
+  //     props.strawEl.clientWidth,
+  //     props.strawEl.clientHeight,
+  //   );
 }
 
 function onChangeColor() {
-  picking.value = false;
-  setColor();
+  // picking.value = false;
+  //   setColor();
 }
 </script>
 

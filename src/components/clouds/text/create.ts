@@ -3,10 +3,10 @@ import { CLOUD_TYPE } from '@/constants';
 
 export interface TextItem {
   text: string;
-  [porpname: string]: unknown;
+  [porpname: string]: any;
 }
 
-export interface CloudTextPrivate {
+export interface CloudText {
   fontFamily: string;
   fontSize: number;
   textAlign: string;
@@ -27,7 +27,7 @@ export interface CloudTextPrivate {
 
 export default function createTextCloud(props = {}) {
   const { scale } = sky.state;
-  const cloudText: CloudTextPrivate = {
+  const cloudText: CloudText = {
     fontFamily: 'SourceHanSansSC-Regular',
     fontSize: 60,
     textAlign: 'left',
