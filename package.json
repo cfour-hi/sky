@@ -11,6 +11,7 @@
     "@vueuse/core": "^6.7.3",
     "animate.css": "^4.1.1",
     "axios": "^0.23.0",
+    "gifuct-js": "^2.1.1",
     "mousetrap": "^1.6.5",
     "moveable": "^0.26.0",
     "normalize.css": "^8.0.1",

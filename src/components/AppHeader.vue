@@ -15,22 +15,37 @@
 </template>
 
 <script setup>
-import { inject } from 'vue';
+import { inject, nextTick } from 'vue';
 import { processPSD2Sky } from '@/plugins/psd';
 import { saveTemplate2Local } from '@/plugins/template';
 import { adaptiveZoom } from '@/utils/zoom';
 import { dom2Svg, svg2ImageBlob } from '@/utils/dom-2-image';
 import createTextCloud from '@/components/clouds/text/create';
 import createImageCloud from '@/components/clouds/image/create';
+import { CLOUD_TYPE } from '@/constants';
+import { useFontStore } from '@/stores/font';
+import { DEFAULT_FONT_FAMILY } from '@/constants/index';
 
 const sky = inject('sky');
+const fontStore = useFontStore();
 
 async function handleChange(e) {
   const data = await processPSD2Sky(e.target.files[0]);
   const clouds = data.clouds.map((cloud) => sky.cloud.create(cloud));
+  clouds
+    .filter((cloud) => cloud.type === CLOUD_TYPE.text)
+    .forEach((cloud) => {
+      const font = fontStore.list.find(
+        (font) => font.name === cloud.fontFamily,
+      );
+      if (!font) {
+        cloud.fontFamily = DEFAULT_FONT_FAMILY;
+      }
+    });
 
   sky.setState({ ...data, clouds, scale: 1 });
 
+  await nextTick();
   handleAdaptive();
 }
 

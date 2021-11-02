@@ -16,6 +16,7 @@ export default {
 </script>
 
 <script setup>
+import { WRITING_MODE } from '@/constants';
 import { computed, onMounted, ref, watch, nextTick, inject } from 'vue';
 import CloudText from './index.vue';
 
@@ -49,6 +50,7 @@ const skyHooks = {
 const elRoot = ref();
 const readonly = ref(true);
 const value = ref(JSON.stringify(props.cloud.texts));
+let elTextContent = null;
 
 const rootStyle = computed(() => ({
   width: `${props.cloud.width / sky.state.scale}px`,
@@ -65,15 +67,17 @@ watch(readonly, (value) => {
 
 watch(
   () => props.cloud.writingMode,
-  () => {
+  (value) => {
     skyHooks.moveable.renderDirections = toRenderDirections(value);
     sky.moveable.updateState();
-    sky.moveable.instance.updateTarget();
+    sky.cloud.updateCloudsElementRect();
   },
 );
 
 onMounted(() => {
-  ['cloud.letterSpacing', 'cloud.lineHeight'].forEach((key) => {
+  elTextContent = elRoot.value.querySelector('.text__content');
+
+  [('cloud.letterSpacing', 'cloud.lineHeight')].forEach((key) => {
     watch(
       () => key,
       async () => {
@@ -88,7 +92,7 @@ onMounted(() => {
 });
 
 function toRenderDirections(mode) {
-  if (mode === 'vertical-rl') {
+  if (mode === WRITING_MODE.v) {
     return [...RENDER_DIRECTIONS_BASE, 'n', 's'];
   }
   return [...RENDER_DIRECTIONS_BASE, 'w', 'e'];
@@ -101,9 +105,7 @@ function handleChange() {
 
 function doSelectAll() {
   window.getSelection().removeAllRanges();
-  window
-    .getSelection()
-    .selectAllChildren(elRoot.value.querySelector('.text__content'));
+  window.getSelection().selectAllChildren(elTextContent);
 }
 
 function onClick(event) {
@@ -125,7 +127,7 @@ function onClick(event) {
 
 function onChangeTarget() {
   readonly.value = true;
-  props.cloud.text = elRoot.value.textContent;
+  props.cloud.text = elTextContent.textContent;
 }
 
 function onResizeStart(event) {
@@ -136,14 +138,25 @@ function onResizeStart(event) {
 function onResize(event) {
   const { datas, direction } = event;
   const [h, v] = direction;
+  const { el } = sky.cloudVM[props.cloud.id].subTree;
 
-  if (props.cloud.writingMode === 'horizontal-tb') {
+  if (props.cloud.writingMode === WRITING_MODE.h) {
+    if (v === 0) {
+      // 左右拉伸
+      const { clientHeight } = elTextContent;
+      el.style.height = `${clientHeight}px`;
+      props.cloud.height = clientHeight;
+    }
+  } else if (props.cloud.writingMode === WRITING_MODE.v) {
     if (h === 0) {
-      console.log(elRoot);
-      // props.cloud.height =
+      // 上下拉伸
+      const { clientWidth } = elTextContent;
+      el.style.width = `${clientWidth}px`;
+      props.cloud.width = clientWidth;
     }
   }
 
+  // 对角拉伸
   if (h !== 0 && v !== 0) {
     props.cloud.fontSize = datas.startFontSize * datas.scale[0];
   }

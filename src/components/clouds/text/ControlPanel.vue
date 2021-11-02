@@ -148,13 +148,23 @@ export default {
 </script>
 
 <script setup>
-import { computed, reactive, ref, onMounted, inject, nextTick } from 'vue';
+import {
+  computed,
+  reactive,
+  ref,
+  onMounted,
+  inject,
+  nextTick,
+  watchEffect,
+} from 'vue';
 import ControlPanelHeader from '@/components/control-panel/Header.vue';
 import BarColorPicker from '@/components/biz/BarColorPicker.vue';
 import PopupSpacing from './control-panel/PopupSpacing.vue';
 import { useFontStore } from '@/stores/font';
 import { splitText, setRange, getTextSelection } from './helper';
 import { hasDiffValue, hasSameValue } from '@/utils/tool';
+import { assign } from '@packages/sky/tool';
+import { WRITING_MODE } from '@/constants';
 
 const refSelectFontFamily = ref();
 const refRoot = ref();
@@ -185,7 +195,12 @@ let birdTextVM = sky.birdVM[targetCloud0.id];
 // 编辑状态下的 selection 对象
 let textSelection = null;
 
-const isVerticalRL = computed(() => panelData.writingMode === 'vertical-rl');
+const isVerticalRL = computed(() => panelData.writingMode === WRITING_MODE.v);
+
+watchEffect(() => {
+  // 拉伸文字组件会改变字体大小
+  assign(panelData, targetCloud0);
+});
 
 onMounted(() => {
   showFontFamilyImage(panelData.fontFamily);
@@ -343,7 +358,7 @@ function changeTextColor(value) {
 function changeWritingMode() {
   changeCloudProp(
     'writingMode',
-    isVerticalRL ? 'horizontal-tb' : 'vertical-rl',
+    isVerticalRL.value ? WRITING_MODE.h : WRITING_MODE.v,
   );
 
   targetClouds.forEach((cloud) => {
@@ -351,8 +366,6 @@ function changeWritingMode() {
     cloud.width = height;
     cloud.height = width;
   });
-
-  sky.cloud.updateCloudsElementRect();
 }
 
 document.onselectionchange = () => {

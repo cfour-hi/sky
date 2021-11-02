@@ -1,5 +1,5 @@
 import { sky } from '@/plugins/sky';
-import { CLOUD_TYPE } from '@/constants';
+import { CLOUD_TYPE, DEFAULT_FONT_FAMILY, WRITING_MODE } from '@/constants';
 
 export interface TextItem {
   text: string;
@@ -28,12 +28,12 @@ export interface CloudText {
 export default function createTextCloud(props = {}) {
   const { scale } = sky.state;
   const cloudText: CloudText = {
-    fontFamily: 'SourceHanSansSC-Regular',
+    fontFamily: DEFAULT_FONT_FAMILY,
     fontSize: 60,
     textAlign: 'left',
     color: `#000000ff`,
     textDecoration: 'none',
-    writingMode: '',
+    writingMode: WRITING_MODE.h,
     fontWeight: 400,
     fontStyle: 'normal',
     lineHeight: 1,

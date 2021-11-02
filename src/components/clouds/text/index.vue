@@ -55,7 +55,7 @@ export default {
 </script>
 
 <script setup>
-import sky from '@/plugins/sky';
+import { WRITING_MODE } from '@/constants';
 import { computed } from 'vue';
 
 const props = defineProps({
@@ -71,7 +71,7 @@ const props = defineProps({
 });
 
 const textContentStyle = computed(() => {
-  const isVertical = props.cloud.writingMode === 'vertical-rl';
+  const isVertical = props.cloud.writingMode === WRITING_MODE.v;
   return {
     ...toStyle(props.cloud),
     width: isVertical ? 'auto' : '100%',

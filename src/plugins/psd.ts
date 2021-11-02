@@ -1,4 +1,4 @@
-import { CLOUD_TYPE } from '@/constants';
+import { CLOUD_TYPE, WRITING_MODE } from '@/constants';
 import { colorer } from '@packages/sky-ui/main';
 
 export async function parsePSDFromURL(url: string) {
@@ -133,8 +133,8 @@ function toCloudTextConfig(data: any, layer: any) {
       : '',
     writingMode:
       typeTool.obj.textData.Ornt.value === 'Hrzn'
-        ? 'horizontal-tb'
-        : 'vertical-rl',
+        ? WRITING_MODE.h
+        : WRITING_MODE.v,
     fontWeight: '',
     fontStyle: '',
     texts,
@@ -185,7 +185,7 @@ export async function convertPSD2Sky(psd: any) {
   };
 
   // eslint-ignore-next-line
-  console.info('children, document', psd, children, doc);
+  // console.info('children, document', psd, children, doc);
 
   const background = {
     color: '#ffffff00',
