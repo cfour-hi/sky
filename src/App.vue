@@ -11,7 +11,7 @@ import AsideCategory from '@/components/AsideCategory.vue';
 import AppMain from '@/components/AppMain.vue';
 import { loadLocalTemplateData } from '@/plugins/template';
 import { useFontStore } from '@/stores/font';
-import { filterSkyFonts } from '@/utils/dom-2-image';
+import { filterSkyFonts } from '@/utils/font';
 
 const fontStore = useFontStore();
 const promiseFontFetch = fontStore.fetch();

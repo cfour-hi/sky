@@ -1252,12 +1252,12 @@ get-value@^2.0.3, get-value@^2.0.6:
   resolved "https://registry.yarnpkg.com/get-value/-/get-value-2.0.6.tgz#dc15ca1c672387ca76bd37ac0a395ba2042a2c28"
   integrity sha1-3BXKHGcjh8p2vTesCjlbogQqLCg=
 
-gifuct-js@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/gifuct-js/-/gifuct-js-2.1.1.tgz#ac74ab664bc0726d0a1af3f4fb46f8c0f19d8f43"
-  integrity sha512-DZkLjGtUs+cx0EDby+on/h/GrjizxcqGHLN6c8h8t8GHT1XBhRhfow/nl6L96fwSRO+37hTF2lCnoqUWFsKs9g==
+gifuct-js@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/gifuct-js/-/gifuct-js-2.1.2.tgz#06152437ba30ec914db8398bd838bd0fbc8a6ecd"
+  integrity sha512-rI2asw77u0mGgwhV3qA+OEgYqaDn5UNqgs+Bx0FGwSpuqfYn+Ir6RQY5ENNQ8SbIiG/m5gVa7CD5RriO4f4Lsg==
   dependencies:
-    js-binary-schema-parser "^2.0.2"
+    js-binary-schema-parser "^2.0.3"
 
 glob-parent@^5.1.2, glob-parent@~5.1.2:
   version "5.1.2"
@@ -1632,10 +1632,10 @@ js-base64@^2.1.9:
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.6.4.tgz#f4e686c5de1ea1f867dbcad3d46d969428df98c4"
   integrity sha512-pZe//GGmwJndub7ZghVHz7vjb2LgC1m8B07Au3eYqeqv9emhESByMXxaEgkUkEqJe87oBbSniGYoQNIBklc7IQ==
 
-js-binary-schema-parser@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/js-binary-schema-parser/-/js-binary-schema-parser-2.0.2.tgz#8fec115616bfe91c6c407f1ef2b58297b1147299"
-  integrity sha512-LUdtrIW6+4ERDhLO19cQBwYKWMcS09QpuBQSUmwYx+OXB8KzMiGDTNoVOTuo4dNrPItlYW0xyiUd1t/3HZtbxg==
+js-binary-schema-parser@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/js-binary-schema-parser/-/js-binary-schema-parser-2.0.3.tgz#3d7848748e8586e63b34e8911b643f59cfb6396e"
+  integrity sha512-xezGJmOb4lk/M1ZZLTR/jaBHQ4gG/lqQnJqdIv4721DMggsa1bDVlHXNeHYogaIEHD9vCRv0fcL4hMA+Coarkg==
 
 js-stringify@^1.0.2:
   version "1.0.2"

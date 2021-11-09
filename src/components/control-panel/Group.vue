@@ -1,30 +1,3 @@
-<script>
-export default {
-  name: 'ControlPanelGroup',
-};
-</script>
-
-<script setup>
-import { computed, inject } from 'vue';
-import ControlPanelHeader from '@/components/control-panel/Header.vue';
-
-const sky = inject('sky');
-
-const isClouds = computed(
-  () =>
-    sky.runtime.targetClouds.length === 1 &&
-    sky.runtime.targetClouds[0]?.type === 'clouds',
-);
-
-function handleClick() {
-  if (isClouds) {
-    sky.cloud.unGroup();
-  } else {
-    sky.cloud.toGroup();
-  }
-}
-</script>
-
 <template>
   <div class="control-panel__group">
     <ControlPanelHeader title="组合" />
@@ -70,6 +43,33 @@ function handleClick() {
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  name: 'ControlPanelGroup',
+};
+</script>
+
+<script setup>
+import { computed, inject } from 'vue';
+import ControlPanelHeader from '@/components/control-panel/Header.vue';
+
+const sky = inject('sky');
+
+const isClouds = computed(
+  () =>
+    sky.runtime.targetClouds.length === 1 &&
+    sky.runtime.targetClouds[0]?.type === 'clouds',
+);
+
+function handleClick() {
+  if (isClouds.value) {
+    sky.cloud.unGroup();
+  } else {
+    sky.cloud.toGroup();
+  }
+}
+</script>
 
 <style lang="scss" scoped>
 .button__group {

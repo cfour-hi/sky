@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="elRoot"
     :class="toCloudClass(cloud)"
     class="sky-cloud sky-clouds sky-bird"
     :data-cloud-id="cloud.id"
@@ -28,9 +29,16 @@ export default {
 </script>
 
 <script setup>
-import { getCurrentInstance, inject, ref } from 'vue';
-import { SKY_CLOUD_LOCK, CLOUD_RENDER_DIRECTIONS } from '../constants';
+import {
+  getCurrentInstance,
+  inject,
+  onMounted,
+  onBeforeUnmount,
+  ref,
+} from 'vue';
+import { SKY_CLOUD_LOCK } from '../constants';
 import Cloud from './Cloud.vue';
+import { toCloudReflowStyle } from './helper';
 
 const sky = inject('sky');
 
@@ -41,13 +49,19 @@ const props = defineProps({
   },
 });
 
+const elRoot = ref();
+
 onMounted(() => {
-  sky.cloudVM[props.cloud.id] = sky.birdVM[props.cloud.id] =
-    getCurrentInstance();
+  const vm = getCurrentInstance();
+  sky.cloudVM[props.cloud.id] = vm;
+  sky.birdVM[props.cloud.id] = vm;
+
+  Object.assign(elRoot.value.style, toCloudReflowStyle(props.cloud));
 });
 
 onBeforeUnmount(() => {
   Reflect.deleteProperty(sky.cloudVM, props.cloud.id);
+  Reflect.deleteProperty(sky.birdVM, props.cloud.id);
 });
 
 function toCloudClass(cloud) {

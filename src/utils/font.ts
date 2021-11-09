@@ -1,3 +1,7 @@
+import { sky } from '@/plugins/sky';
+import { CloudText } from '@/components/clouds/text/create';
+import { CLOUD_TYPE } from '@/constants';
+
 // https://www.zhangxinxu.com/wordpress/2018/02/js-detect-suppot-font-family/
 export const isSupportFontFamily = (f: string) => {
   if (typeof f != 'string') {
@@ -33,10 +37,33 @@ export const isSupportFontFamily = (f: string) => {
   return g(h).join('') !== g(f).join('');
 };
 
+// 生成字体 style
 export function generateFontStyle(name: string, url: string): HTMLStyleElement {
   const el = document.createElement('style');
   el.id = name;
   // el.classList.add('font-face');
   el.innerHTML = `@font-face { font-family: "${name}"; src: local("${name}"), url("${url}"); }`;
   return el;
+}
+
+// 找到使用到的所有字体
+export function filterSkyFonts() {
+  const fonts: string[] = [];
+  const textClouds = sky.state.clouds.filter(
+    (cloud) => cloud.type === CLOUD_TYPE.text,
+  );
+
+  (textClouds as unknown as CloudText[]).forEach((cloud) => {
+    // 找到文字组件字体
+    if (cloud.fontFamily && !fonts.includes(cloud.fontFamily)) {
+      fonts.push(cloud.fontFamily);
+    }
+    // 找到文字组件子级字体
+    cloud.texts.forEach((text) => {
+      if (text.fontFamily && !fonts.includes(text.fontFamily)) {
+        fonts.push(text.fontFamily);
+      }
+    });
+  });
+  return fonts;
 }

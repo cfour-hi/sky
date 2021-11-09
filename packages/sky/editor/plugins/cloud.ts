@@ -209,7 +209,7 @@ export default function createCloud(sky: Sky) {
      * 而使用 DOM 操作 class
      */
 
-    sky.vm.ctx.$el
+    sky.vm.subTree.el
       .querySelector('.sky-cloud-select')
       ?.classList.remove('sky-cloud-select');
 
@@ -359,7 +359,7 @@ export default function createCloud(sky: Sky) {
     const targetClouds = [...sky.runtime.targetClouds];
     const id = genRandomCode();
 
-    module.delete({ force: true });
+    await module.delete({ force: true });
 
     // 成组后子元素相对 targetClouds 定位
     targetClouds.forEach((cloud) => {
@@ -389,7 +389,7 @@ export default function createCloud(sky: Sky) {
     const { clouds, top, left /* transform */ } = targetClouds[0];
     if (!clouds) return;
 
-    module.delete({ force: true });
+    await module.delete({ force: true });
 
     /**
      * 成组后子元素相对上一级容器定位

@@ -1,4 +1,5 @@
 import { sky } from '@/plugins/sky';
+import { Cloud } from '@packages/sky/editor/plugins/cloud';
 import { CLOUD_TYPE, DEFAULT_FONT_FAMILY, WRITING_MODE } from '@/constants';
 
 export interface TextItem {
@@ -6,7 +7,7 @@ export interface TextItem {
   [porpname: string]: any;
 }
 
-export interface CloudText {
+export interface CloudText extends Cloud {
   fontFamily: string;
   fontSize: number;
   textAlign: string;
@@ -25,9 +26,9 @@ export interface CloudText {
   [propsName: string]: unknown;
 }
 
-export default function createTextCloud(props = {}) {
+export default function createTextCloud(props = {}): CloudText {
   const { scale } = sky.state;
-  const cloudText: CloudText = {
+  return {
     fontFamily: DEFAULT_FONT_FAMILY,
     fontSize: 60,
     textAlign: 'left',
@@ -46,6 +47,5 @@ export default function createTextCloud(props = {}) {
     width: 360 * scale,
     height: 60 * scale,
     ...props,
-  };
-  return cloudText;
+  } as unknown as CloudText;
 }

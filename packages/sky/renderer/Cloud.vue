@@ -5,6 +5,7 @@
     :class="toCloudClass(cloud)"
     :style="rootStyle"
     :data-cloud-id="cloud.id"
+    :data-cloud-type="cloud.type"
   >
     <component
       ref="elCloud"
@@ -31,15 +32,9 @@ import {
   inject,
   getCurrentInstance,
   onBeforeUnmount,
-  onUnmounted,
-  onBeforeMount,
-  onBeforeUpdate,
-  onUpdated,
 } from 'vue';
 import { SKY_CLOUD_LOCK } from '../constants';
 import { toCloudReflowStyle } from './helper';
-
-const mr = Math.random();
 
 const sky = inject('sky');
 const SkyCloudComponents = inject('SkyCloudComponents');
@@ -88,6 +83,7 @@ onBeforeUnmount(() => {
   // 会先执行新创建的实例
   // 再销毁老的实例
   Reflect.deleteProperty(sky.cloudVM, props.cloud.id);
+  Reflect.deleteProperty(sky.birdVM, props.cloud.id);
 });
 
 function toCloudClass(cloud) {

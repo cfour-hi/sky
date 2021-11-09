@@ -20,7 +20,7 @@ import { inject, nextTick } from 'vue';
 import { processPSD2Sky } from '@/plugins/psd';
 import { saveTemplate2Local } from '@/plugins/template';
 import { adaptiveZoom } from '@/utils/zoom';
-import { dom2Svg, svg2ImageBlob } from '@/utils/dom-2-image';
+import { generateImage } from '@/utils/dom-2-image';
 import createTextCloud from '@/components/clouds/text/create';
 import createImageCloud from '@/components/clouds/image/create';
 import { CLOUD_TYPE } from '@/constants';
@@ -105,12 +105,9 @@ function handleAddImage() {
 async function handleGenerateImage() {
   console.time('handleGenerateImage');
 
-  const svg = await dom2Svg(sky.vm.subTree.el.querySelector('.sky-renderer'));
-  const blob = await svg2ImageBlob(svg);
+  const blob = await generateImage();
 
   console.timeEnd('handleGenerateImage');
-
-  // downloadBlob(blob);
 
   const blobURL = URL.createObjectURL(blob);
   window.open(blobURL);
