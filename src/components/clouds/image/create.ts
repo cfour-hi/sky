@@ -1,6 +1,6 @@
 import { Cloud } from '@packages/sky/editor/plugins/cloud';
 import { CLOUD_TYPE } from '@/constants';
-import logo from '@/assets/logo.png';
+import { MIME } from '@/constants/index';
 
 const GIFS = [
   'https://st-gdx.dancf.com/gaodingx/0/uxms/design/20210809-162514-cd8e.gif',
@@ -12,6 +12,7 @@ const GIFS = [
 
 export interface CloudImage extends Cloud {
   src: string;
+  mime: string;
   [propsName: string]: unknown;
 }
 
@@ -19,6 +20,7 @@ export default function createCloudImage(props = {}): CloudImage {
   return {
     src: GIFS[Math.floor(Math.random() * 5)],
     type: CLOUD_TYPE.image,
+    mime: MIME.gif,
     ...props,
   } as CloudImage;
 }

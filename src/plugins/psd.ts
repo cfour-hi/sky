@@ -146,7 +146,7 @@ function toCloudTextConfig(data: any, layer: any) {
 }
 
 function toCloudImageConfig(data: any, layer: any) {
-  // const { type, b64 } = splitB64(layer.image.toBase64());
+  // const { type, b64 } = splitBase64(layer.image.toBase64());
   // const src = URL.createObjectURL(b64toBlob(b64, type));
 
   return {

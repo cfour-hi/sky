@@ -4,10 +4,11 @@ import cloudImageCSS from '@/components/clouds/image/index.css';
 import cloudTextCSS from '@/components/clouds/text/index.css';
 import { generateFontStyle } from '@/utils/font';
 import { useFontStore } from '@/stores/font';
-import { blob2B64 } from './dataer';
+import { blob2Base64 } from './dataer';
 import { CLOUD_TYPE } from '@/constants';
 import { decompressFrames, parseGIF, ParsedFrame } from 'gifuct-js';
 import { filterSkyFonts } from './font';
+import { MIME } from '@/constants/index';
 
 // 移除空行和注释
 function compression(str: string) {
@@ -20,31 +21,6 @@ const svgStyle =
   compression(cloudImageCSS) +
   compression(cloudTextCSS) +
   '</style>';
-
-// const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-// svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-// svg.setAttribute('width', el.clientWidth);
-// svg.setAttribute('height', el.clientHeight);
-
-// const style = document.createElement('style');
-// style.innerText = svgStyle;
-
-// const foreighObject = document.createElementNS(
-//   'http://www.w3.org/2000/svg',
-//   'foreignObject',
-// );
-// foreighObject.setAttribute('x', 0);
-// foreighObject.setAttribute('y', 0);
-// foreighObject.setAttribute('width', '100%');
-// foreighObject.setAttribute('height', '100%');
-// foreighObject.innerHTML = new XMLSerializer().serializeToString(
-//   el.cloneNode(true),
-// );
-
-// svg.appendChild(style);
-// svg.appendChild(foreighObject);
-
-// return svg;
 
 interface NewParsedFrame extends ParsedFrame {
   newDelay?: number;
@@ -67,7 +43,7 @@ export async function generateImage() {
 
   // 一张还是多张
   const gifClouds = sky.state.clouds.filter(
-    (cloud) => cloud.type === CLOUD_TYPE.image && cloud.src.endsWith('.gif'),
+    (cloud) => cloud.type === CLOUD_TYPE.image && cloud.mime === MIME.gif,
   );
 
   let blob;
@@ -87,10 +63,8 @@ export async function generateImage() {
     } else {
       // 有多张 Gif 图
       const { totalTime, frameLen, delay } = computeGifData(gifsData);
-      // 调整多张 gif 图的数据，适配总时长
+      // 调整每张 gif 图的数据，适配总时长
       adaptGifFrames(gifsData, totalTime);
-      // 重新生成帧数据
-      regenerateFrameData(gifsData);
       blob = await toGif4Multiple(rootElClone, gifsData, frameLen, delay);
     }
   }
@@ -99,9 +73,7 @@ export async function generateImage() {
 
   function svg2ImageBlob(svg: string) {
     return new Promise((resolve) => {
-      const el = document.querySelector('.sky-renderer') as HTMLElement;
-      const { canvas, ctx } = createCanvas(el.clientWidth, el.clientHeight);
-
+      const { canvas, ctx } = createCanvas(sky.state.width, sky.state.height);
       const img = new Image();
       img.onload = () => {
         ctx?.drawImage(img, 0, 0);
@@ -121,6 +93,17 @@ export async function generateImage() {
     const gifsData = await Promise.all(
       gifClouds.map(async (cloud) => {
         const sourceFrames = await parseGifFromURL(cloud.src);
+        // 目前还不能支持 base64
+        // let sourceFrames: ParsedFrame[];
+        // if (cloud.src.startsWith('data')) {
+        //   // base64
+        //   const blob = base642Blob(cloud.src);
+        //   sourceFrames = await parseGifFromFile(
+        //     new File([blob], `${cloud.id}.gif`, { type: 'image/gif' }),
+        //   );
+        // } else {
+        //   sourceFrames = await parseGifFromURL(cloud.src);
+        // }
         const frames = sourceFrames.map((frame) => ({ ...frame, newDelay: 0 }));
         const [frame0] = frames;
         return {
@@ -135,14 +118,6 @@ export async function generateImage() {
       }),
     );
     return gifsData;
-  }
-
-  // 通过 URL 解析 Gif
-  function parseGifFromURL(url: string) {
-    return fetch(url)
-      .then((resp) => resp.arrayBuffer())
-      .then((buff) => parseGIF(buff))
-      .then((gif) => decompressFrames(gif, true));
   }
 
   // 生成 Gif，只有一张 Gif 图的情况
@@ -165,7 +140,8 @@ export async function generateImage() {
     async function addGifFrame(index: number) {
       const { canvas, ctx } = createCanvas(sky.state.width, sky.state.height);
       const frame = getFrameByIndex(index);
-      const image = await toFrameImage(frame);
+      replaceGifElSrc2FrameBase64(gifData, frame);
+      const image = await dom2Image(el);
 
       ctx?.drawImage(image, 0, 0, sky.state.width, sky.state.height);
       gif.addFrame(canvas, { delay: frame.delay });
@@ -179,21 +155,18 @@ export async function generateImage() {
       }
       return gifData.frames[index];
     }
+  }
 
-    async function toFrameImage(frame: ParsedFrame): Promise<HTMLImageElement> {
-      const { dims, patch } = frame;
-      const { canvas, ctx } = createCanvas(gifData.width, gifData.height);
-      ctx?.putImageData(
-        new ImageData(patch, dims.width, dims.height),
-        dims.left,
-        dims.top,
-      );
-      const base64 = canvas.toDataURL();
-      gifData.el.src = base64;
-
-      const image = await dom2Image(el);
-      return image as HTMLImageElement;
-    }
+  function replaceGifElSrc2FrameBase64(gifData: GifData, frame: ParsedFrame) {
+    const { dims, patch } = frame;
+    const { canvas, ctx } = createCanvas(gifData.width, gifData.height);
+    ctx?.putImageData(
+      new ImageData(patch, dims.width, dims.height),
+      dims.left,
+      dims.top,
+    );
+    const base64 = canvas.toDataURL();
+    gifData.el.src = base64;
   }
 
   function computeGifData(gifsData: GifData[]) {
@@ -239,7 +212,7 @@ export async function generateImage() {
       const multiple = Math.floor(time / totalTime);
       // 目标时长与当前 gif 图时长的差值
       if (multiple !== 0) {
-        diff = (time - (multiple - 1) * totalTime - totalTime) / multiple;
+        diff = (time - multiple * totalTime) / multiple;
       }
 
       if (diff === 0) return;
@@ -253,32 +226,6 @@ export async function generateImage() {
       gif.totalTime = Math.round(
         gif.frames.reduce((pre, cur) => pre + cur.delay, 0),
       );
-    });
-  }
-
-  // 重新生成帧数据
-  function regenerateFrameData(gifsData: GifData[]) {
-    // 以每帧 50ms 为标准计算新的帧数据
-    gifsData.forEach((gif) => {
-      let time = 0;
-      const newFrames: NewParsedFrame[] = [];
-      while (time < gif.totalTime) {
-        const frame = findFrame(gif.frames, time);
-        const { length } = newFrames;
-        // 当前帧与前一帧是同一帧
-        if (length > 0 && frame === newFrames[length - 1]) {
-          (frame.newDelay as number) += DEFAULT_GIF_DELAY;
-        } else {
-          frame.newDelay = DEFAULT_GIF_DELAY;
-          newFrames.push(frame);
-        }
-        time += DEFAULT_GIF_DELAY;
-      }
-      newFrames.forEach((frame) => {
-        frame.delay = frame.newDelay as number;
-        Reflect.deleteProperty(frame, 'newDelay');
-      });
-      gif.frames = newFrames;
     });
   }
 
@@ -307,50 +254,37 @@ export async function generateImage() {
     async function addGifFrame(index: number) {
       const { canvas, ctx } = createCanvas(sky.state.width, sky.state.height);
       const image = await toFrameImage(index);
+
       ctx?.drawImage(image, 0, 0, sky.state.width, sky.state.height);
       gif.addFrame(canvas, { delay });
     }
 
     async function toFrameImage(index: number): Promise<HTMLImageElement> {
       gifsData.forEach((gifData) => {
-        const { el, frames } = gifData;
         const frame = getFrameByTime(gifData, index * delay);
-        const { dims, patch } = frame;
-        const { canvas, ctx } = createCanvas(gifData.width, gifData.height);
-
-        ctx?.putImageData(
-          new ImageData(patch, dims.width, dims.height),
-          dims.left,
-          dims.top,
-        );
-        const base64 = canvas.toDataURL();
-        el.src = base64;
+        replaceGifElSrc2FrameBase64(gifData, frame);
       });
-      const image = await dom2Image(el);
-      return image as HTMLImageElement;
+      return await dom2Image(el);
+    }
 
-      function getFrameByTime(gifData: GifData, time: number) {
-        if (time >= gifData.totalTime) {
-          const div = Math.floor(time / gifData.totalTime);
-          time = time - gifData.totalTime * div;
+    // 根据时间找到帧数据
+    function getFrameByTime(gifData: GifData, time: number) {
+      while (time > gifData.totalTime) {
+        time -= gifData.totalTime;
+      }
+
+      let totalTime = 0;
+      let frame;
+      for (let i = 0; i < gifData.frames.length; i += 1) {
+        totalTime += gifData.frames[i].delay;
+        // totalTime 存在小数精度问题
+        if (Math.ceil(totalTime) >= time) {
+          frame = gifData.frames[i];
+          break;
         }
-        return findFrame(gifData.frames, time);
       }
+      return frame as NewParsedFrame;
     }
-  }
-
-  // 根据时间找到帧数据
-  function findFrame(frames: NewParsedFrame[], time: number) {
-    let totalTime = 0;
-    let frame;
-    for (let i = 0; i < frames.length; i += 1) {
-      totalTime += frames[i].delay;
-      if (totalTime > time) {
-        frame = frames[i];
-        break;
-      }
-    }
-    return frame as NewParsedFrame;
   }
 }
 
@@ -415,7 +349,7 @@ export async function dom2Svg(el: HTMLElement) {
   }
 }
 
-export async function dom2Image(el: HTMLElement) {
+export async function dom2Image(el: HTMLElement): Promise<HTMLImageElement> {
   const svg = await dom2Svg(el);
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -430,11 +364,11 @@ export async function dom2Image(el: HTMLElement) {
 export async function imageURL2Base64(url: string) {
   const response = await fetch(url);
   const blob = await response.blob();
-  const base64 = await blob2B64(blob);
+  const base64 = await blob2Base64(blob);
   return base64;
 }
 
-function createCanvas(width: number, height: number) {
+export function createCanvas(width: number, height: number) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -442,13 +376,21 @@ function createCanvas(width: number, height: number) {
   return { canvas, ctx };
 }
 
-// export function parseGifFromFile(file: File) {
+// 通过 URL 解析 Gif
+export function parseGifFromURL(url: string) {
+  return fetch(url)
+    .then((resp) => resp.arrayBuffer())
+    .then((buff) => parseGIF(buff))
+    .then((gif) => decompressFrames(gif, true));
+}
+
+// export function parseGifFromFile(file: File): Promise<ParsedFrame[]> {
 //   return new Promise((resolve, reject) => {
 //     const fileReader = new FileReader();
 //     fileReader.onload = () => {
 //       const gif = parseGIF(fileReader.result as ArrayBuffer);
 //       const frames = decompressFrames(gif, true);
-//       return frames;
+//       resolve(frames);
 //     };
 //     fileReader.onerror = reject;
 //     fileReader.readAsArrayBuffer(file);

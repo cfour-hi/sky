@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { useLocalStorage } from '@vueuse/core';
 import { getFonts } from '@/api/gaoding';
-import { blob2B64 } from '@/utils/dataer';
+import { blob2Base64 } from '@/utils/dataer';
 import { generateFontStyle, isSupportFontFamily } from '@/utils/font';
 
 export interface Font {
@@ -55,7 +55,7 @@ export const useFontStore = defineStore('font', {
 
       const response = await fetch(url, { headers: { responseType: 'blob' } });
       const blob = await response.blob();
-      const b64 = await blob2B64(blob);
+      const b64 = await blob2Base64(blob);
 
       // 使用 base64 是为了方便将 DOM 生成图片
       this.download[name] = b64;

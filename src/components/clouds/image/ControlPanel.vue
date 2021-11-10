@@ -16,7 +16,6 @@ export default {
 
 <script setup>
 import ControlPanelHeader from '@/components/control-panel/Header.vue';
-import { blob2B64 } from '@/utils/dataer';
 import { getCurrentInstance } from 'vue';
 
 const vm = getCurrentInstance();
@@ -27,9 +26,10 @@ function onClickReplaceImage() {
   elInput.click();
 
   elInput.onchange = async (e) => {
-    const base64 = await blob2B64(e.target.files[0]);
+    const [file0] = e.target.files;
     sky.runtime.targetClouds.forEach((cloud) => {
-      cloud.src = base64;
+      cloud.src = URL.createObjectURL(file0);
+      cloud.mime = file0.type;
       elInput.remove();
     });
   };

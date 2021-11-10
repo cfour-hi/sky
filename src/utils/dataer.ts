@@ -1,10 +1,10 @@
-export function splitB64(b64Data: string) {
+export function splitBase64(b64Data: string) {
   const [pre, b64] = b64Data.split(',');
   const [type] = pre.match(/[^:]+(?=;)/) ?? [];
   return { type, b64 };
 }
 
-export default function b64ToBlob(
+export function base642Blob(
   b64Data: string,
   contentType = '',
   sliceSize = 512,
@@ -28,7 +28,7 @@ export default function b64ToBlob(
   return blob;
 }
 
-export async function blob2B64(blob: Blob): Promise<string> {
+export async function blob2Base64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const fileReader = new FileReader();
     fileReader.onload = () => {
