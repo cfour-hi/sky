@@ -110,8 +110,9 @@ async function handleGenerateImage() {
   console.timeEnd('handleGenerateImage');
 
   const blobURL = URL.createObjectURL(blob);
+  console.log(blobURL);
   window.open(blobURL);
-  URL.revokeObjectURL(blobURL);
+  // URL.revokeObjectURL(blobURL);
 }
 </script>
 

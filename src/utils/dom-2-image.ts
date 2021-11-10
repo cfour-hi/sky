@@ -68,7 +68,6 @@ export async function generateImage() {
       blob = await toGif4Multiple(rootElClone, gifsData, frameLen, delay);
     }
   }
-
   return blob;
 
   function svg2ImageBlob(svg: string) {
@@ -131,7 +130,6 @@ export async function generateImage() {
       await Promise.all(pa);
 
       gif.on('finished', function (blob: Blob) {
-        console.log(URL.createObjectURL(blob));
         resolve(blob);
       });
       gif.render();
@@ -173,19 +171,19 @@ export async function generateImage() {
     const times = gifsData.map((gif) => gif.totalTime);
     const minTime = Math.min(...times);
     const maxTime = Math.max(...times);
-    // 是否成倍数关系
-    const hasMultiple = maxTime / minTime > 2;
+    const div = maxTime / minTime;
+
     let totalTime = 0;
-    if (hasMultiple) {
+    if (div > 2) {
       // 计算最大时长
       totalTime = computeTotalTime(minTime, maxTime);
     } else {
       // 取平均时长
       totalTime = times.reduce((pre, cur) => pre + cur, 0) / times.length;
     }
+
     let delay = DEFAULT_GIF_DELAY;
-    // 帧数
-    let frameLen = totalTime / delay;
+    let frameLen = totalTime / delay; // 帧数
     if (frameLen > MAX_GIF_FRAME) {
       delay = delay * (frameLen / MAX_GIF_FRAME);
       frameLen = MAX_GIF_FRAME;
@@ -205,26 +203,27 @@ export async function generateImage() {
   // 调整多张 gif 图的数据，适配总时长
   function adaptGifFrames(gifsData: GifData[], time: number) {
     // 适配时长
-    gifsData.forEach((gif) => {
-      const { totalTime } = gif;
-      let diff = time - totalTime;
+    gifsData.forEach((gifData) => {
+      const { totalTime, frames } = gifData;
       // 目标时长与当前 gif 图时长的倍数关系
       const multiple = Math.floor(time / totalTime);
+
       // 目标时长与当前 gif 图时长的差值
+      let diff = time - totalTime;
       if (multiple !== 0) {
         diff = (time - multiple * totalTime) / multiple;
       }
-
       if (diff === 0) return;
 
-      gif.frames.forEach((frame) => {
+      frames.forEach((frame) => {
         // 依据每一帧占比增加时长
         const precent = frame.delay / totalTime;
         frame.delay += diff * precent;
       });
+
       // 设置适配后的总时长
-      gif.totalTime = Math.round(
-        gif.frames.reduce((pre, cur) => pre + cur.delay, 0),
+      gifData.totalTime = Math.round(
+        frames.reduce((pre, cur) => pre + cur.delay, 0),
       );
     });
   }
@@ -245,7 +244,6 @@ export async function generateImage() {
       await Promise.all(pa);
 
       gif.on('finished', function (blob: Blob) {
-        console.log(URL.createObjectURL(blob));
         resolve(blob);
       });
       gif.render();
