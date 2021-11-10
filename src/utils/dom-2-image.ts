@@ -136,13 +136,10 @@ export async function generateImage() {
     });
 
     async function addGifFrame(index: number) {
-      const { canvas, ctx } = createCanvas(sky.state.width, sky.state.height);
       const frame = getFrameByIndex(index);
       replaceGifElSrc2FrameBase64(gifData, frame);
       const image = await dom2Image(el);
-
-      ctx?.drawImage(image, 0, 0, sky.state.width, sky.state.height);
-      gif.addFrame(canvas, { delay: frame.delay });
+      gif.addFrame(image, { delay: frame.delay });
     }
 
     // 根据索引找到帧数据
@@ -250,11 +247,8 @@ export async function generateImage() {
     });
 
     async function addGifFrame(index: number) {
-      const { canvas, ctx } = createCanvas(sky.state.width, sky.state.height);
       const image = await toFrameImage(index);
-
-      ctx?.drawImage(image, 0, 0, sky.state.width, sky.state.height);
-      gif.addFrame(canvas, { delay });
+      gif.addFrame(image, { delay });
     }
 
     async function toFrameImage(index: number): Promise<HTMLImageElement> {
