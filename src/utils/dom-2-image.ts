@@ -4,11 +4,12 @@ import cloudImageCSS from '@/components/clouds/image/index.css';
 import cloudTextCSS from '@/components/clouds/text/index.css';
 import { generateFontStyle } from '@/utils/font';
 import { useFontStore } from '@/stores/font';
-import { blob2Base64 } from './dataer';
+import { blob2Base64 } from '@/utils/dataer';
 import { CLOUD_TYPE } from '@/constants';
 import { decompressFrames, parseGIF, ParsedFrame } from 'gifuct-js';
 import { filterSkyFonts } from './font';
 import { MIME } from '@/constants/index';
+import { noop } from '@/utils/tool';
 
 // 移除空行和注释
 function compression(str: string) {
@@ -34,10 +35,16 @@ interface GifData {
   height: number;
 }
 
+interface GenerateImageOptions {
+  onProgress: (process: number) => void;
+}
+
 const DEFAULT_GIF_DELAY = 50;
 const MAX_GIF_FRAME = 100;
 
-export async function generateImage() {
+export async function generateImage(options: GenerateImageOptions) {
+  const onProgress = options.onProgress ?? noop;
+
   const rootEl = sky.vm.subTree.el.querySelector('.sky-renderer');
   const rootElClone = rootEl.cloneNode(true) as HTMLElement;
 
@@ -49,9 +56,11 @@ export async function generateImage() {
   let blob;
   if (gifClouds.length === 0) {
     const svg = await dom2Svg(rootElClone);
+    onProgress(50);
     blob = await svg2ImageBlob(svg);
   } else {
     const gifsData = await toGifsData();
+    onProgress(20);
 
     if (gifClouds.length === 1) {
       // 只要 1 张 Gif 图
@@ -65,9 +74,11 @@ export async function generateImage() {
       const { totalTime, frameLen, delay } = computeGifData(gifsData);
       // 调整每张 gif 图的数据，适配总时长
       adaptGifFrames(gifsData, totalTime);
+      onProgress(40);
       blob = await toGif4Multiple(rootElClone, gifsData, frameLen, delay);
     }
   }
+  onProgress(100);
   return blob;
 
   function svg2ImageBlob(svg: string) {
@@ -133,6 +144,8 @@ export async function generateImage() {
         resolve(blob);
       });
       gif.render();
+
+      onProgress(60);
     });
 
     async function addGifFrame(index: number) {
@@ -232,13 +245,14 @@ export async function generateImage() {
     length: number,
     delay: number,
   ) {
-    const gif = new (window as any).GIF({ worker: 2, quality: 10 });
+    const gif = new (window as any).GIF({ worker: 4, quality: 10 });
     return new Promise(async (resolve, reject) => {
       const pa = [];
       for (let i = 0; i < length; i += 1) {
         pa.push(addGifFrame(i));
       }
       await Promise.all(pa);
+      onProgress(80);
 
       gif.on('finished', function (blob: Blob) {
         resolve(blob);

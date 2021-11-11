@@ -10,6 +10,7 @@ import SkyTabPanel from './SkyTabPanel.vue';
 import SkyTooltip from './SkyTooltip.vue';
 import SkyDialog from './SkyDialog.vue';
 import SkySlider from './SkySlider.vue';
+import SkyProgress from './SkyProgress.vue';
 
 const components = [
   SkyButton,
@@ -24,6 +25,7 @@ const components = [
   SkyTooltip,
   SkyDialog,
   SkySlider,
+  SkyProgress,
 ];
 
 export default {

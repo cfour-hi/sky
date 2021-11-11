@@ -201,6 +201,12 @@ const sliderAlphaBackgroundStyle = computed(() => {
 watch(activeGradient, (value) => {
   setColor(value.color);
 });
+watch(
+  () => props.value,
+  (value) => {
+    setColor(value);
+  },
+);
 
 const unwatchHSLA = watch(hsla, onChangeHSLA, { deep: true });
 function onChangeHSLA(newHsla) {

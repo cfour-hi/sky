@@ -1,3 +1,29 @@
+<template>
+  <teleport to="body">
+    <div
+      class="sky-dialog flex-center"
+      :class="$attrs.class"
+      :style="rootStyle"
+    >
+      <div class="mask" @click="handleClickMask"></div>
+
+      <div class="sky-dialog__panel" :style="panelStyle">
+        <div class="sky-dialog__header">
+          <slot name="header" />
+        </div>
+
+        <div class="sky-dialog__body">
+          <slot />
+        </div>
+
+        <div class="sky-dialog__footer">
+          <slot name="footer" />
+        </div>
+      </div>
+    </div>
+  </teleport>
+</template>
+
 <script>
 export default {
   name: 'SkyDialog',
@@ -44,26 +70,6 @@ function handleClickMask() {
 }
 </script>
 
-<template>
-  <div class="sky-dialog flex-center" :style="rootStyle">
-    <div class="mask" @click="handleClickMask"></div>
-
-    <div class="sky-dialog__panel" :style="panelStyle">
-      <div class="sky-dialog__header">
-        <slot name="header" />
-      </div>
-
-      <div class="sky-dialog__body">
-        <slot />
-      </div>
-
-      <div class="sky-dialog__footer">
-        <slot name="footer" />
-      </div>
-    </div>
-  </div>
-</template>
-
 <style lang="scss" scoped>
 .sky-dialog {
   z-index: 3002;
@@ -74,15 +80,15 @@ function handleClickMask() {
   }
 
   &__header {
-    @apply flex-none h-14;
+    @apply flex-none p-4;
   }
 
   &__body {
-    @apply flex-1 overflow-auto;
+    @apply flex-1 overflow-auto p-4;
   }
 
   &__footer {
-    @apply flex-none h-14;
+    @apply flex-none p-4;
   }
 }
 

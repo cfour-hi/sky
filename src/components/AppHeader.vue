@@ -13,10 +13,22 @@
     <SkyButton @click="handleAddImage">Add Image</SkyButton>
     <SkyButton @click="handleGenerateImage">Generate Image</SkyButton>
   </div>
+
+  <SkyDialog
+    :visible="showGenerateImageProgress"
+    height="160px"
+    class="generate-process"
+  >
+    <SkyProgress :percent="generateImagePercent"></SkyProgress>
+    <a target="_blank" :href="generateImageBlobURL">{{
+      generateImageBlobURL
+    }}</a>
+    <SkyButton @click="onClickCancel">关闭</SkyButton>
+  </SkyDialog>
 </template>
 
 <script setup>
-import { inject, nextTick } from 'vue';
+import { inject, nextTick, ref } from 'vue';
 import { processPSD2Sky } from '@/plugins/psd';
 import { saveTemplate2Local } from '@/plugins/template';
 import { adaptiveZoom } from '@/utils/zoom';
@@ -29,6 +41,10 @@ import { DEFAULT_FONT_FAMILY } from '@/constants/index';
 
 const sky = inject('sky');
 const fontStore = useFontStore();
+
+const showGenerateImageProgress = ref(false);
+const generateImagePercent = ref(0);
+const generateImageBlobURL = ref('');
 
 async function loadPSD(file) {
   const data = await processPSD2Sky(file);
@@ -103,16 +119,28 @@ function handleAddImage() {
 }
 
 async function handleGenerateImage() {
+  showGenerateImageProgress.value = true;
+
   console.time('handleGenerateImage');
 
-  const blob = await generateImage();
+  const blob = await generateImage({
+    onProgress: (percent) => (generateImagePercent.value = percent),
+  });
 
   console.timeEnd('handleGenerateImage');
 
-  const blobURL = URL.createObjectURL(blob);
-  console.log(blobURL);
-  window.open(blobURL);
-  // URL.revokeObjectURL(blobURL);
+  // showGenerateImageProgress.value = false;
+
+  generateImageBlobURL.value = URL.createObjectURL(blob);
+  console.log(generateImageBlobURL.value);
+  window.open(generateImageBlobURL.value);
+  // URL.revokeObjectURL(generateImageBlobURL.value);
+}
+
+function onClickCancel() {
+  showGenerateImageProgress.value = false;
+  generateImageBlobURL.value = '';
+  generateImagePercent.value = 0;
 }
 </script>
 
@@ -120,5 +148,13 @@ async function handleGenerateImage() {
 .app-header {
   height: var(--app-header-height);
   background: #fff;
+}
+</style>
+
+<style lang="scss">
+.generate-process {
+  .sky-dialog__body {
+    @apply text-center;
+  }
 }
 </style>
