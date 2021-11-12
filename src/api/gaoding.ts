@@ -1,8 +1,8 @@
 import httpRequest from '@/plugins/http-request';
-import { GAODING } from '@/constants/api';
+import { GAODING_API_V2, GAODING_FONTER } from '@/constants/api';
 
 export const getFonts = async (pageNum: number): Promise<any> => {
-  return await httpRequest.get(`${GAODING}/fonts`, {
+  return await httpRequest.get(`${GAODING_API_V2}/fonts`, {
     params: {
       type: 'font',
       page_size: 100,
@@ -13,3 +13,19 @@ export const getFonts = async (pageNum: number): Promise<any> => {
     },
   });
 };
+
+interface GetSubsetFontParams {
+  font_id: number;
+  content: string;
+}
+
+export async function getSubsetFont(params: GetSubsetFontParams) {
+  return await httpRequest.get(`${GAODING_FONTER}/subset`, {
+    params: {
+      from_site: 'gaoding',
+      type: 'woff',
+      ...params,
+    },
+    responseType: 'blob',
+  });
+}

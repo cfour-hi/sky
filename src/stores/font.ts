@@ -5,6 +5,7 @@ import { blob2Base64 } from '@/utils/dataer';
 import { generateFontStyle, isSupportFontFamily } from '@/utils/font';
 
 export interface Font {
+  id: number;
   name: string;
   content: {
     woff: string;

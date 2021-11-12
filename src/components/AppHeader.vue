@@ -15,20 +15,26 @@
   </div>
 
   <SkyDialog
-    :visible="showGenerateImageProgress"
-    height="160px"
+    v-model:visible="showGenerateImageProgress"
+    width="600px"
+    height="360px"
     class="generate-process"
+    @afterClose="handleAfterClose"
   >
-    <SkyProgress :percent="generateImagePercent"></SkyProgress>
-    <a target="_blank" :href="generateImageBlobURL">{{
+    <SkyProgress
+      :percent="generateImageProgressPercent"
+      type="Circle"
+      :options="generateImageOptions"
+    />
+
+    <a target="_blank" class="block mt-4" :href="generateImageBlobURL">{{
       generateImageBlobURL
     }}</a>
-    <SkyButton @click="onClickCancel">关闭</SkyButton>
   </SkyDialog>
 </template>
 
 <script setup>
-import { inject, nextTick, ref } from 'vue';
+import { inject, nextTick, ref, reactive } from 'vue';
 import { processPSD2Sky } from '@/plugins/psd';
 import { saveTemplate2Local } from '@/plugins/template';
 import { adaptiveZoom } from '@/utils/zoom';
@@ -43,8 +49,16 @@ const sky = inject('sky');
 const fontStore = useFontStore();
 
 const showGenerateImageProgress = ref(false);
-const generateImagePercent = ref(0);
+const generateImageProgressPercent = ref(0);
 const generateImageBlobURL = ref('');
+const generateImageOptions = reactive({
+  strokeWidth: 4,
+  trailWidth: 4,
+  svgStyle: {
+    display: 'block',
+    width: '200px',
+  },
+});
 
 async function loadPSD(file) {
   const data = await processPSD2Sky(file);
@@ -124,23 +138,25 @@ async function handleGenerateImage() {
   console.time('handleGenerateImage');
 
   const blob = await generateImage({
-    onProgress: (percent) => (generateImagePercent.value = percent),
+    onProgress: (percent) => {
+      if (showGenerateImageProgress.value) {
+        generateImageProgressPercent.value = percent;
+      }
+    },
   });
 
   console.timeEnd('handleGenerateImage');
 
-  // showGenerateImageProgress.value = false;
-
   generateImageBlobURL.value = URL.createObjectURL(blob);
   console.log(generateImageBlobURL.value);
-  window.open(generateImageBlobURL.value);
+  // window.open(generateImageBlobURL.value);
   // URL.revokeObjectURL(generateImageBlobURL.value);
 }
 
-function onClickCancel() {
+function handleAfterClose() {
   showGenerateImageProgress.value = false;
   generateImageBlobURL.value = '';
-  generateImagePercent.value = 0;
+  generateImageProgressPercent.value = 0;
 }
 </script>
 

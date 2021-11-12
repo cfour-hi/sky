@@ -2,14 +2,15 @@ import { sky } from '@/plugins/sky';
 import { skyRendererStyle } from '@packages/sky/renderer';
 import cloudImageCSS from '@/components/clouds/image/index.css';
 import cloudTextCSS from '@/components/clouds/text/index.css';
-import { generateFontStyle } from '@/utils/font';
-import { useFontStore } from '@/stores/font';
+import { generateFontStyle, filterSkyFonts } from '@/utils/font';
+import { useFontStore, Font } from '@/stores/font';
 import { blob2Base64 } from '@/utils/dataer';
 import { CLOUD_TYPE } from '@/constants';
 import { decompressFrames, parseGIF, ParsedFrame } from 'gifuct-js';
-import { filterSkyFonts } from './font';
 import { MIME } from '@/constants/index';
 import { noop } from '@/utils/tool';
+import { getSubsetFont } from '@/api/gaoding';
+import { CloudText } from '@/components/clouds/text/create';
 
 // 移除空行和注释
 function compression(str: string) {
@@ -54,31 +55,36 @@ export async function generateImage(options: GenerateImageOptions) {
   );
 
   let blob;
+  let gifInstance: any;
   if (gifClouds.length === 0) {
     const svg = await dom2Svg(rootElClone);
-    onProgress(50);
+    onProgress(0.5);
     blob = await svg2ImageBlob(svg);
   } else {
-    const gifsData = await toGifsData();
-    onProgress(20);
+    gifInstance = new (window as any).GIF({ worker: 4, quality: 10 });
+    const [gifsData, fontStyles] = await Promise.all([
+      toGifsData(),
+      toFontStyles(),
+    ]);
+    onProgress(0.4);
 
     if (gifClouds.length === 1) {
       // 只要 1 张 Gif 图
-      blob = await toGif4Single(
-        rootElClone,
-        gifsData[0],
-        gifsData[0].frames.length,
-      );
+      blob = await toGif4Single(gifsData[0], gifsData[0].frames.length, {
+        fontStyles,
+      });
     } else {
       // 有多张 Gif 图
       const { totalTime, frameLen, delay } = computeGifData(gifsData);
       // 调整每张 gif 图的数据，适配总时长
       adaptGifFrames(gifsData, totalTime);
-      onProgress(40);
-      blob = await toGif4Multiple(rootElClone, gifsData, frameLen, delay);
+      onProgress(0.4);
+      blob = await toGif4Multiple(gifsData, frameLen, delay, {
+        fontStyles,
+      });
     }
   }
-  onProgress(100);
+  onProgress(1);
   return blob;
 
   function svg2ImageBlob(svg: string) {
@@ -130,9 +136,47 @@ export async function generateImage(options: GenerateImageOptions) {
     return gifsData;
   }
 
+  async function toFontStyles() {
+    const textClouds = sky.state.clouds.filter(
+      (cloud) => cloud.type === CLOUD_TYPE.text,
+    );
+
+    // 拿到所有文字和对应的字体
+    const fontContent: { [propname: string]: string } = {};
+    (textClouds as CloudText[]).forEach((cloud) => {
+      if (fontContent[cloud.fontFamily]) {
+        fontContent[cloud.fontFamily] += cloud.text;
+      } else {
+        fontContent[cloud.fontFamily] = cloud.text;
+      }
+    });
+
+    const fontStore = useFontStore();
+    await Promise.all(
+      // 拿到所有文字所对应字体子集 base64
+      Object.keys(fontContent).map(async (key) => {
+        const font = fontStore.list.find((font) => font.name === key) as Font;
+        const blob = await getSubsetFont({
+          font_id: font.id,
+          content: fontContent[key],
+        });
+        const base64 = await blob2Base64(blob as unknown as Blob);
+        fontContent[key] = base64;
+      }),
+    );
+    const fontStyles = Object.keys(fontContent).reduce(
+      (pre, cur) => pre + generateFontStyle(cur, fontContent[cur]).outerHTML,
+      '',
+    );
+    return fontStyles;
+  }
+
   // 生成 Gif，只有一张 Gif 图的情况
-  function toGif4Single(el: HTMLElement, gifData: GifData, length: number) {
-    const gif = new (window as any).GIF({ worker: 2, quality: 10 });
+  function toGif4Single(
+    gifData: GifData,
+    length: number,
+    { fontStyles }: { fontStyles?: string } = {},
+  ) {
     return new Promise(async (resolve) => {
       const pa = [];
       for (let i = 0; i < length; i += 1) {
@@ -140,19 +184,19 @@ export async function generateImage(options: GenerateImageOptions) {
       }
       await Promise.all(pa);
 
-      gif.on('finished', function (blob: Blob) {
+      gifInstance.on('finished', function (blob: Blob) {
         resolve(blob);
       });
-      gif.render();
+      gifInstance.render();
 
-      onProgress(60);
+      onProgress(0.8);
     });
 
     async function addGifFrame(index: number) {
       const frame = getFrameByIndex(index);
       replaceGifElSrc2FrameBase64(gifData, frame);
-      const image = await dom2Image(el);
-      gif.addFrame(image, { delay: frame.delay });
+      const image = await dom2Image(rootElClone, { fontStyles });
+      gifInstance.addFrame(image, { delay: frame.delay });
     }
 
     // 根据索引找到帧数据
@@ -240,29 +284,28 @@ export async function generateImage(options: GenerateImageOptions) {
 
   // 生成 Gif，有多张 Gif 图的情况
   function toGif4Multiple(
-    el: HTMLElement,
     gifsData: GifData[],
     length: number,
     delay: number,
+    { fontStyles }: { fontStyles?: string } = {},
   ) {
-    const gif = new (window as any).GIF({ worker: 4, quality: 10 });
     return new Promise(async (resolve, reject) => {
       const pa = [];
       for (let i = 0; i < length; i += 1) {
         pa.push(addGifFrame(i));
       }
       await Promise.all(pa);
-      onProgress(80);
+      onProgress(0.8);
 
-      gif.on('finished', function (blob: Blob) {
+      gifInstance.on('finished', function (blob: Blob) {
         resolve(blob);
       });
-      gif.render();
+      gifInstance.render();
     });
 
     async function addGifFrame(index: number) {
       const image = await toFrameImage(index);
-      gif.addFrame(image, { delay });
+      gifInstance.addFrame(image, { delay });
     }
 
     async function toFrameImage(index: number): Promise<HTMLImageElement> {
@@ -270,7 +313,7 @@ export async function generateImage(options: GenerateImageOptions) {
         const frame = getFrameByTime(gifData, index * delay);
         replaceGifElSrc2FrameBase64(gifData, frame);
       });
-      return await dom2Image(el);
+      return await dom2Image(rootElClone, { fontStyles });
     }
 
     // 根据时间找到帧数据
@@ -294,7 +337,10 @@ export async function generateImage(options: GenerateImageOptions) {
   }
 }
 
-export async function dom2Svg(el: HTMLElement) {
+export async function dom2Svg(
+  el: HTMLElement,
+  { fontStyles }: { fontStyles?: string } = {},
+) {
   el = el.cloneNode(true) as HTMLElement;
   await convertURLImage2Base64();
 
@@ -308,7 +354,7 @@ export async function dom2Svg(el: HTMLElement) {
       height='${sky.state.height}'
     >
       ${svgStyle}
-      ${toFontsStyle()}
+      ${fontStyles ?? toFontsStyle()}
       <foreignObject
         x='0'
         y='0'
@@ -355,8 +401,11 @@ export async function dom2Svg(el: HTMLElement) {
   }
 }
 
-export async function dom2Image(el: HTMLElement): Promise<HTMLImageElement> {
-  const svg = await dom2Svg(el);
+export async function dom2Image(
+  el: HTMLElement,
+  { fontStyles }: { fontStyles?: string } = {},
+): Promise<HTMLImageElement> {
+  const svg = await dom2Svg(el, { fontStyles });
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {

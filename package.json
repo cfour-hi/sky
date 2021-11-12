@@ -16,6 +16,7 @@
     "moveable": "^0.26.0",
     "normalize.css": "^8.0.1",
     "pinia": "^2.0.0-rc.15",
+    "progressbar.js": "^1.1.0",
     "selecto": "^1.13.0",
     "vue": "^3.2.16"
   },

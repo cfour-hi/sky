@@ -1,5 +1,5 @@
 <template>
-  <teleport to="body">
+  <teleport :to="teleportTo">
     <div
       class="sky-dialog flex-center"
       :class="$attrs.class"
@@ -31,7 +31,7 @@ export default {
 </script>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, nextTick } from 'vue';
 
 const props = defineProps({
   visible: {
@@ -48,9 +48,19 @@ const props = defineProps({
     type: String,
     default: '80%',
   },
+
+  teleportTo: {
+    type: String,
+    default: 'body',
+  },
+
+  maskClosable: {
+    type: Boolean,
+    default: true,
+  },
 });
 
-const emit = defineEmits(['update:visible']);
+const emit = defineEmits(['update:visible', 'afterClose']);
 
 const rootStyle = computed(() => {
   return {
@@ -65,8 +75,12 @@ const panelStyle = computed(() => {
   };
 });
 
-function handleClickMask() {
-  emit('update:visible', false);
+async function handleClickMask() {
+  if (props.maskClosable) {
+    emit('update:visible', false);
+  }
+  await nextTick();
+  emit('afterClose');
 }
 </script>
 

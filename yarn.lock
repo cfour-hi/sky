@@ -2155,6 +2155,13 @@ pretty-hrtime@^1.0.3:
   resolved "https://registry.yarnpkg.com/pretty-hrtime/-/pretty-hrtime-1.0.3.tgz#b7e3ea42435a4c9b2759d99e0f201eb195802ee1"
   integrity sha1-t+PqQkNaTJsnWdmeDyAesZWALuE=
 
+progressbar.js@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/progressbar.js/-/progressbar.js-1.1.0.tgz#300f99be40ba93fb0867f91dff01771236cade70"
+  integrity sha512-K68/xcyXKo2I6T3PfIkXrRaycxROmWeU4bugb49iulWR25cU94PM0cfZ47S0jDhG5K3vPhZwCOy1fgb5Pgh6UQ==
+  dependencies:
+    shifty "^2.1.2"
+
 promise@^7.0.1:
   version "7.3.1"
   resolved "https://registry.yarnpkg.com/promise/-/promise-7.3.1.tgz#064b72602b18f90f29192b8b1bc418ffd1ebd3bf"
@@ -2509,6 +2516,11 @@ set-value@^2.0.0, set-value@^2.0.1:
     is-extendable "^0.1.1"
     is-plain-object "^2.0.3"
     split-string "^3.0.1"
+
+shifty@^2.1.2:
+  version "2.16.0"
+  resolved "https://registry.yarnpkg.com/shifty/-/shifty-2.16.0.tgz#447f31d56d3a8299f8ca4991af57a8af472eafc0"
+  integrity sha512-hmaxYxbunTNYGcoMS9OGvgjymPP29HWaWc0k+Dv16zo9PhjRGdTbPCT/uH75DDuRbwP4RW9D9e/HhxkyoTQm8Q==
 
 simple-swizzle@^0.2.2:
   version "0.2.2"
