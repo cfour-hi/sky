@@ -112,17 +112,12 @@ function onClick(event) {
   if (!readonly.value || props.cloud.lock || event.metaKey || event.shiftKey) {
     return;
   }
-
-  const now = Date.now();
-  if (now - clickTimestamp < 300) {
+  if (sky.runtime.targetClouds.find((cloud) => cloud.id === props.cloud.id)) {
     readonly.value = false;
-
     nextTick(() => {
       doSelectAll();
     });
   }
-
-  clickTimestamp = now;
 }
 
 function onChangeTarget() {
