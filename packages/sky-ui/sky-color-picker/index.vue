@@ -112,7 +112,6 @@ import {
   onMounted,
   nextTick,
   onBeforeUnmount,
-  watchEffect,
 } from 'vue';
 import { registerMoveableElement } from '../moveable';
 import {
@@ -172,7 +171,7 @@ const elSliderHuxPointer = ref();
 const elSliderHux = ref();
 const elSliderAlphaPointer = ref();
 const elSliderAlpha = ref();
-const elStrawCanvas = ref();
+// const elStrawCanvas = ref();
 
 let gradientMoveable = null;
 let paletteMoveable = null;
@@ -201,10 +200,16 @@ const sliderAlphaBackgroundStyle = computed(() => {
 watch(activeGradient, (value) => {
   setColor(value.color);
 });
+
 watch(
   () => props.value,
   (value) => {
-    setColor(value);
+    const _mode = parseBackgroundValue(value);
+    if (_mode !== mode.value) {
+      mode.value = _mode;
+    }
+    changeMode(_mode);
+    recordValue(value);
   },
 );
 
@@ -353,6 +358,7 @@ function updateValue(value) {
 }
 
 async function onChangeMode(value) {
+  if (value === mode.value) return;
   mode.value = value;
 
   let color;
@@ -364,14 +370,12 @@ async function onChangeMode(value) {
     color = record.image;
   }
   updateValue(color);
-
-  // changeMode 依赖 props.value
-  await nextTick();
-  changeMode(value);
 }
 
-function changeMode(value) {
-  if (value === '渐变') {
+function changeMode(mode) {
+  if (mode === '纯色') {
+    setColor(props.value);
+  } else if (mode === '渐变') {
     if (gradients.value.length === 0) {
       props.value.match(/[^,]+/g).forEach((item, index) => {
         if (index === 0) {
@@ -390,8 +394,6 @@ function changeMode(value) {
     } else {
       setColor(activeGradient.value.color);
     }
-  } else if (value === '纯色') {
-    setColor(props.value);
   }
 
   // TODO: 图案
