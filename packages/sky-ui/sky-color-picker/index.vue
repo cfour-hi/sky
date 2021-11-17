@@ -48,18 +48,18 @@
       <div ref="elPalettePointer" class="sky-cpp__pointer"></div>
     </div>
 
-    <div class="sky-cp__slider sky-cp__slider-hux">
-      <div ref="elSliderHux" class="sky-cps__track">
+    <div ref="elSliderHux" class="sky-cp__slider sky-cp__slider-hux">
+      <div class="sky-cps__track">
         <div ref="elSliderHuxPointer" class="sky-cpst__pointer"></div>
       </div>
     </div>
 
-    <div class="sky-cp__slider sky-cp__slider-alpha">
+    <div ref="elSliderAlpha" class="sky-cp__slider sky-cp__slider-alpha">
       <div
         class="sky-cpsa__background"
         :style="sliderAlphaBackgroundStyle"
       ></div>
-      <div ref="elSliderAlpha" class="sky-cps__track">
+      <div class="sky-cps__track">
         <div ref="elSliderAlphaPointer" class="sky-cpst__pointer"></div>
       </div>
     </div>
@@ -179,6 +179,9 @@ let sliderHuxMoveable = null;
 let sliderAlphaMoveable = null;
 let mousedownGradientPointer = null;
 let backendHex = null;
+// 是否可以改变 palette sliderHux sliderAlpha 的 pointer 位置
+let canChangeHSLAPointerPos = true;
+let canChangeHSLAPointerPosTimer = null;
 
 const record = {
   color: props.defaultColor,
@@ -295,6 +298,8 @@ async function onMountedCallback() {
   });
 
   function onChangeSL(position) {
+    disableChangeHSLA();
+
     const x = position.x * 100;
     const y = position.y * 100;
 
@@ -311,6 +316,8 @@ async function onMountedCallback() {
   });
 
   function onChangeHux(position) {
+    disableChangeHSLA();
+
     hsla.h = position.x * 360;
     elSliderHuxPointer.value.style.left = `${position.x * 100}%`;
   }
@@ -321,6 +328,8 @@ async function onMountedCallback() {
   });
 
   function onChangeAlpha(position) {
+    disableChangeHSLA();
+
     hsla.a = position.x;
     elSliderAlphaPointer.value.style.left = `${position.x * 100}%`;
   }
@@ -407,23 +416,28 @@ function updateColorData(hexA) {
 }
 
 function setColor(color) {
-  const _hsla = hexA2HSLA(color);
-  hsla.h = _hsla[0];
-  hsla.s = _hsla[1];
-  hsla.l = _hsla[2];
-  hsla.a = _hsla[3];
+  // 通过 palette sliderHux sliderAlpha 交互改变 pointer 位置
+  // 已经改变 hsla 的值并触发 update:value
+  // watch props.value 再调用当前方法时无需再更新 hsla
+  if (canChangeHSLAPointerPos) {
+    const _hsla = hexA2HSLA(color);
+    hsla.h = _hsla[0];
+    hsla.s = _hsla[1];
+    hsla.l = _hsla[2];
+    hsla.a = _hsla[3];
 
-  updateColorData(color);
+    updateColorData(color);
 
-  let x = hsla.s;
-  const y = Math.round(100 - hsla.l);
-  elPalettePointer.value.style.left = `${x}%`;
-  elPalettePointer.value.style.top = `${y}%`;
+    let x = hsla.s;
+    const y = Math.round(100 - hsla.l);
+    elPalettePointer.value.style.left = `${x}%`;
+    elPalettePointer.value.style.top = `${y}%`;
 
-  x = hsla.h / 360;
-  elSliderHuxPointer.value.style.left = `${x * 100}%`;
+    x = hsla.h / 360;
+    elSliderHuxPointer.value.style.left = `${x * 100}%`;
 
-  elSliderAlphaPointer.value.style.left = `${hsla.a * 100}%`;
+    elSliderAlphaPointer.value.style.left = `${hsla.a * 100}%`;
+  }
 }
 
 function onMousedownGradientPointer(stop) {
@@ -461,6 +475,15 @@ function onChangeHex(value) {
 function onChangeAlpha(value) {
   hsla.a = value / 100;
   elSliderAlphaPointer.value.style.left = `${value}%`;
+}
+
+function disableChangeHSLA() {
+  canChangeHSLAPointerPos = false;
+
+  if (canChangeHSLAPointerPosTimer) clearTimeout(canChangeHSLAPointerPosTimer);
+  canChangeHSLAPointerPosTimer = setTimeout(() => {
+    canChangeHSLAPointerPos = true;
+  }, 16);
 }
 
 async function onClickStraw() {
