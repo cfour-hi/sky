@@ -1,6 +1,6 @@
 <template>
   <div class="cloud-text">
-    <div class="text__effect" v-show="readonly">
+    <div class="text__effect">
       <div
         v-for="(stroke, index) in cloud.strokes"
         :key="`stroke${index}`"
@@ -31,10 +31,10 @@
     </div>
 
     <div
+      ref="elTextContent"
       class="text__content"
       :style="textContentStyle"
       v-bind="$attrs"
-      :contenteditable="!readonly"
     >
       <span
         v-for="(text, index) in cloud.texts"
@@ -55,52 +55,62 @@ export default {
 </script>
 
 <script setup>
+import { computed, onMounted, ref } from 'vue';
 import { WRITING_MODE } from '@/constants';
-import { computed } from 'vue';
 
 const props = defineProps({
   cloud: {
     type: Object,
     required: true,
   },
-
-  readonly: {
-    type: Boolean,
-    default: true,
-  },
 });
 
+const elTextContent = ref();
+
 const textContentStyle = computed(() => {
+  // 以下属性都不会影响图层尺寸，可以异步更新
+  const styles = {
+    fontWeight: props.cloud.fontWeight,
+    fontStyle: props.cloud.fontStyle,
+    textDecoration: props.cloud.textDecoration,
+    textAlign: props.cloud.textAlign,
+    color: props.cloud.color,
+    writingMode: props.cloud.writingMode,
+  };
+
   const isVertical = props.cloud.writingMode === WRITING_MODE.v;
   return {
-    ...toStyle(props.cloud),
+    ...styles,
     width: isVertical ? 'auto' : '100%',
     height: isVertical ? '100%' : 'auto',
   };
 });
 
-function toStyle(styles) {
-  const result = {
-    fontSize: styles.fontSize ? `${styles.fontSize}px` : '',
-    textAlign: styles.textAlign ?? '',
-    color: styles.color,
-    textDecoration: styles.textDecoration ?? '',
-    writingMode: styles.writingMode ?? '',
-    fontWeight: styles.fontWeight ?? '',
-    fontStyle: styles.fontStyle ?? '',
-    lineHeight: styles.lineHeight ?? '',
-    letterSpacing: styles.letterSpacing ?? '',
-  };
-
-  if (styles.fontFamily) {
-    result.fontFamily = styles.fontFamily;
-  }
-
-  return result;
-}
+onMounted(() => {
+  // 以下属性都会影响图层尺寸，要求同步更新
+  Object.assign(elTextContent.value.style, {
+    fontSize: `${props.cloud.fontSize}px`,
+    lineHeight: props.cloud.lineHeight,
+    letterSpacing: `${props.cloud.letterSpacing}px`,
+  });
+});
 
 function toSpanStyle(text) {
-  return toStyle(text);
+  const result = {
+    fontSize: text.fontSize ? `${text.fontSize}px` : '',
+    textAlign: text.textAlign ?? '',
+    color: text.color,
+    textDecoration: text.textDecoration ?? '',
+    writingMode: text.writingMode ?? '',
+    fontWeight: text.fontWeight ?? '',
+    fontStyle: text.fontStyle ?? '',
+    lineHeight: text.lineHeight ?? '',
+    letterSpacing: text.letterSpacing ? `${text.letterSpacing}px` : '',
+  };
+  if (text.fontFamily) {
+    result.fontFamily = text.fontFamily;
+  }
+  return result;
 }
 
 function toStrokeStyle(stroke) {

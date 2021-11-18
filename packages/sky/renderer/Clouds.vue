@@ -36,7 +36,7 @@ import {
   onBeforeUnmount,
   ref,
 } from 'vue';
-import { SKY_CLOUD_LOCK } from '../constants';
+import { SKY_CLOUD_LOCK, CLOUD_RENDER_DIRECTIONS } from '../constants';
 import Cloud from './Cloud.vue';
 import { toCloudReflowStyle } from './helper';
 
@@ -48,6 +48,13 @@ const props = defineProps({
     required: true,
   },
 });
+
+const skyHooks = {
+  moveable: {
+    renderDirections: [...CLOUD_RENDER_DIRECTIONS],
+    keepRatio: [...CLOUD_RENDER_DIRECTIONS],
+  },
+};
 
 const elRoot = ref();
 
@@ -69,4 +76,6 @@ function toCloudClass(cloud) {
     [SKY_CLOUD_LOCK]: cloud.lock,
   };
 }
+
+defineExpose({ skyHooks });
 </script>

@@ -1,11 +1,6 @@
 <template>
-  <div
-    ref="elRoot"
-    class="cloud-text__editor"
-    :style="rootStyle"
-    @click="onClick"
-  >
-    <CloudText :cloud="cloud" :readonly="readonly" />
+  <div ref="elRoot" class="cloud-text__editor" :style="rootStyle">
+    <CloudText :cloud="cloud" />
   </div>
 </template>
 
@@ -17,7 +12,7 @@ export default {
 
 <script setup>
 import { WRITING_MODE } from '@/constants';
-import { computed, onMounted, ref, watch, nextTick, inject } from 'vue';
+import { computed, onMounted, ref, watch, inject } from 'vue';
 import CloudText from './index.vue';
 
 const sky = inject('sky');
@@ -30,27 +25,23 @@ const props = defineProps({
 });
 
 // TODO: 组件在 clouds 进入编辑状态，不可触发拖动行为
-
 const RENDER_DIRECTIONS_BASE = ['ne', 'nw', 'sw', 'se'];
-let clickTimestamp = null;
-
 const skyHooks = {
   moveable: {
     onClick,
     onChangeTarget,
     onResizeStart,
     onResize,
-    onResizeEnd,
     keepRatio: [...RENDER_DIRECTIONS_BASE],
     renderDirections: toRenderDirections(props.cloud.writingMode),
     onLeaveSelect: onChangeTarget,
   },
 };
+let elTextContent = null;
+let elTextEffect = null;
 
 const elRoot = ref();
 const readonly = ref(true);
-const value = ref(JSON.stringify(props.cloud.texts));
-let elTextContent = null;
 
 const rootStyle = computed(() => ({
   width: `${props.cloud.width / sky.state.scale}px`,
@@ -59,15 +50,23 @@ const rootStyle = computed(() => ({
   transformOrigin: 'top left',
 }));
 
-watch(readonly, (value) => {
-  if (!value) {
+watch(readonly, (_readonly) => {
+  if (_readonly) {
+    // 更新文字内容
+    props.cloud.text = elTextContent.textContent;
+  } else {
     sky.moveable.instance.passDragArea = true;
+    doSelectAll();
   }
+  // 编辑状态下不显示特效
+  elTextEffect.style.display = _readonly ? 'block' : 'none';
+  elTextContent.setAttribute('contenteditable', !_readonly);
 });
 
 watch(
   () => props.cloud.writingMode,
   (value) => {
+    // 变更可 resize 方向
     skyHooks.moveable.renderDirections = toRenderDirections(value);
     sky.moveable.updateState();
     sky.cloud.updateCloudsElementRect();
@@ -76,19 +75,7 @@ watch(
 
 onMounted(() => {
   elTextContent = elRoot.value.querySelector('.text__content');
-
-  [('cloud.letterSpacing', 'cloud.lineHeight')].forEach((key) => {
-    watch(
-      () => key,
-      async () => {
-        await nextTick();
-
-        // TODO:
-        // props.cloud.height = this.$refs.slateEditor.$el.clientHeight;
-        sky.cloud.updateCloudsElementRect();
-      },
-    );
-  });
+  elTextEffect = elRoot.value.querySelector('.text__effect');
 });
 
 function toRenderDirections(mode) {
@@ -98,36 +85,26 @@ function toRenderDirections(mode) {
   return [...RENDER_DIRECTIONS_BASE, 'w', 'e'];
 }
 
-function handleChange() {
-  // TODO:
-  // props.cloud.texts = this.$editor.children;
-}
-
 function doSelectAll() {
   window.getSelection().removeAllRanges();
   window.getSelection().selectAllChildren(elTextContent);
 }
 
 function onClick(event) {
-  if (!readonly.value || props.cloud.lock || event.metaKey || event.shiftKey) {
+  if (props.cloud.lock || event.metaKey || event.shiftKey) {
     return;
   }
-  if (sky.runtime.targetClouds.find((cloud) => cloud.id === props.cloud.id)) {
-    readonly.value = false;
-    nextTick(() => {
-      doSelectAll();
-    });
-  }
+  readonly.value = false;
 }
 
 function onChangeTarget() {
   readonly.value = true;
-  props.cloud.text = elTextContent.textContent;
 }
 
 function onResizeStart(event) {
   const { datas } = event;
   datas.startFontSize = props.cloud.fontSize;
+  datas.startLetterSpacing = props.cloud.letterSpacing;
 }
 
 function onResize(event) {
@@ -154,11 +131,12 @@ function onResize(event) {
   // 对角拉伸
   if (h !== 0 && v !== 0) {
     props.cloud.fontSize = datas.startFontSize * datas.scale[0];
+    props.cloud.letterSpacing = datas.startLetterSpacing * datas.scale[0];
+    Object.assign(elTextContent.style, {
+      fontSize: `${props.cloud.fontSize}px`,
+      letterSpacing: `${props.cloud.letterSpacing}px`,
+    });
   }
-}
-
-function onResizeEnd() {
-  //
 }
 
 defineExpose({ skyHooks, readonly });

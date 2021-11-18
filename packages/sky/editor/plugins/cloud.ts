@@ -107,9 +107,7 @@ export default function createCloud(sky: Sky) {
     clouds: Cloud[] = sky.runtime.targetClouds,
   ) => {
     clouds.forEach((cloud) => {
-      const el = sky.cloud.queryCloudElementById(cloud.id);
-      if (!el) return;
-
+      const el = sky.cloud.queryCloudElementById(cloud.id) as HTMLElement;
       el.style.top = n2px(cloud.top);
       el.style.left = n2px(cloud.left);
       el.style.width = n2px(cloud.width);

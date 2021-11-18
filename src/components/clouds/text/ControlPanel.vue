@@ -129,8 +129,12 @@
         </SkyButton>
 
         <PopupSpacing
-          v-model:showSpacingPopup="showSpacingPopup"
-          :cloud="panelData"
+          v-model:visible="showSpacingPopup"
+          v-model:letterSpacing="panelData.letterSpacing"
+          v-model:lineHeight="panelData.lineHeight"
+          :fontSize="panelData.fontSize"
+          @update:letterSpacing="onChangeLetterSpacing"
+          @update:lineHeight="onChangeLineHeight"
         />
 
         <SkyButton plain>
@@ -175,6 +179,8 @@ const [targetCloud0] = targetClouds;
 const fontStore = useFontStore();
 
 const showSpacingPopup = ref(false);
+
+// 控制面板有自己的数据对象，避免多选文字组件的情况下数据混乱
 const panelData = reactive({
   fontFamily: targetCloud0.fontFamily,
   fontSize: targetCloud0.fontSize,
@@ -220,7 +226,7 @@ function changeCloudProp(key, value, defaultValue) {
   });
 }
 
-function changeTextsProp(texts, key, value, defaultValue) {
+function changeCloudTextsProp(texts, key, value, defaultValue) {
   const diff = hasDiffValue(texts, key, value);
   const result = diff ? value : defaultValue;
   panelData[key] = result;
@@ -264,7 +270,7 @@ function changePanelData(key, value, defaultValue) {
         // ???
       } else if (anchorOffset === 0 && focusOffset === anchorNode.length) {
         // 选中当前 sapn 的所有内容
-        changeTextsProp([text], key, value, defaultValue);
+        changeCloudTextsProp([text], key, value, defaultValue);
         setRange(anchorNode, 0, anchorNode, anchorNode.length);
       } else {
         const newText = splitText(text, anchorOffset, focusOffset);
@@ -281,7 +287,7 @@ function changePanelData(key, value, defaultValue) {
             changeTexts.push(newText[1]);
           }
         }
-        changeTextsProp(changeTexts, key, value, defaultValue);
+        changeCloudTextsProp(changeTexts, key, value, defaultValue);
 
         nextTick(() => {
           const spans = Array.from(elTextContent.children);
@@ -307,7 +313,7 @@ function changePanelData(key, value, defaultValue) {
       changeTexts.push(newText[anchorOffset === 0 ? 0 : 1]);
       targetCloud0.texts.splice(anchorElIndex, 1, ...newText);
 
-      changeTextsProp(changeTexts, key, value, defaultValue);
+      changeCloudTextsProp(changeTexts, key, value, defaultValue);
 
       nextTick(() => {
         const spans = Array.from(elTextContent.children);
@@ -366,6 +372,40 @@ function changeWritingMode() {
     cloud.width = height;
     cloud.height = width;
   });
+}
+
+function onChangeLetterSpacing(value) {
+  changeCloudProp('letterSpacing', value);
+
+  // 同步更新，异步更新有延迟，以及会出现 moveable rect 更新不准确问题
+  sky.runtime.targetClouds.forEach((cloud) => {
+    const el = sky.birdVM[cloud.id].subTree.el.querySelector('.text__content');
+    el.style.letterSpacing = `${value}px`;
+
+    if (cloud.writingMode === WRITING_MODE.h) {
+      cloud.height = el.clientHeight;
+    } else if (cloud.writingMode === WRITING_MODE.v) {
+      cloud.width = el.clientWidth;
+    }
+  });
+  sky.cloud.updateCloudsElementRect();
+}
+
+function onChangeLineHeight(value) {
+  changeCloudProp('lineHeight', value);
+
+  // 同步更新，异步更新有延迟，以及会出现 moveable rect 更新不准确问题
+  sky.runtime.targetClouds.forEach((cloud) => {
+    const el = sky.birdVM[cloud.id].subTree.el.querySelector('.text__content');
+    el.style.lineHeight = value;
+
+    if (cloud.writingMode === WRITING_MODE.h) {
+      cloud.height = el.clientHeight;
+    } else if (cloud.writingMode === WRITING_MODE.v) {
+      cloud.width = el.clientWidth;
+    }
+  });
+  sky.cloud.updateCloudsElementRect();
 }
 
 document.onselectionchange = () => {
