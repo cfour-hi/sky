@@ -14,15 +14,11 @@
 
 - [Vite](https://github.com/vitejs/vite)
 - [Vue@3](https://github.com/vuejs/vue-next)
-- [VueUse](https://github.com/vueuse/vueuse)
 - [Pinia](https://github.com/posva/pinia)
+- [VueUse](https://github.com/vueuse/vueuse)
 - [TypeScript](https://github.com/microsoft/TypeScript)
 - [TailwindCSS](https://github.com/tailwindlabs/tailwindcss)
 - [Sass](https://github.com/sass/sass)
-
-- 文字编辑，可修改局部样式
-  - 文字换行还有问题
-  - 未知
 
 ## TODO
 
@@ -41,11 +37,14 @@
 - [x] 文字局部修改
 - [ ] 图片蒙版
 
-## 进阶
+### 进阶
 
 - [ ] PSD 解析、还原
 - [x] 图层框选、等比缩放
 - [x] 图层移动吸附、参考线
 - [x] 文字尺寸、字间距随图层大小而改变
 - [x] 文字横向不可纵向拉伸，文字纵向不可横向拉伸
+- 文字编辑，可修改局部样式
+  - 文字换行还有问题
+  - 未知
 - [ ] PNG 图透明背景点击穿透
