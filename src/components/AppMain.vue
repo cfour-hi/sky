@@ -1,8 +1,17 @@
+<template>
+  <div class="app-main">
+    <div class="sky-editor-container" :style="skyEditorContainerStyle">
+      <sky-editor class="sky-editor__app" :bg-style="backgroundStore.bgStyle" />
+    </div>
+  </div>
+</template>
+
 <script setup>
 import { computed, inject, onMounted, ref } from 'vue';
+import { useBackgroundStore } from '@/stores/background';
 
 const sky = inject('sky');
-const elRoot = ref(null);
+const backgroundStore = useBackgroundStore();
 
 const skyEditorContainerStyle = computed(() => {
   return {
@@ -10,19 +19,7 @@ const skyEditorContainerStyle = computed(() => {
     height: `${sky.state.height}px`,
   };
 });
-
-onMounted(() => {
-  sky.selecto.createInstance(elRoot.value);
-});
 </script>
-
-<template>
-  <div ref="elRoot" class="app-main">
-    <div class="sky-editor-container" :style="skyEditorContainerStyle">
-      <sky-editor class="sky-editor__app" />
-    </div>
-  </div>
-</template>
 
 <style lang="scss" scoped>
 .app-main {

@@ -8,8 +8,13 @@ export const isCloudElementInCloudsElement = (
   return !el.parentElement?.classList.contains('sky-renderer');
 };
 
-export const isBackgroundElement = (el: HTMLElement): boolean => {
-  return el.classList.contains('sky-background');
+export const isBackgroundElement = (
+  el: HTMLElement | null | undefined,
+): boolean => {
+  if (el) {
+    return el.classList.contains('sky-background');
+  }
+  return false;
 };
 
 export const isLockCloudElement = (el: HTMLElement | SVGElement): boolean => {

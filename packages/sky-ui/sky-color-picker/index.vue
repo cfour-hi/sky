@@ -2,7 +2,7 @@
   <div class="sky-color-picker">
     <div class="mb-3">{{ mode }}</div>
 
-    <SkyTabs v-if="modes.length > 1" :value="mode" @change="onChangeMode">
+    <SkyTabs v-if="modes.length > 1" :value="mode" @update:value="onChangeMode">
       <SkyTabPanel v-for="label in modes" :key="label" :label="label">
       </SkyTabPanel>
     </SkyTabs>

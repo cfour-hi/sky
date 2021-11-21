@@ -8,34 +8,34 @@
       </SkyButton>
 
       <div class="bar bar-tool mt-3">
-        <SkyButton plain @click="$sky.cloud.alignTop">
+        <SkyButton plain @click="sky.cloud.alignTop">
           <SkyTooltip content="上对齐" direction="bottom" />
           <svg-icon filename="align-top" />
         </SkyButton>
 
-        <SkyButton plain @click="$sky.cloud.alignVerticalMiddle">
+        <SkyButton plain @click="sky.cloud.alignVerticalMiddle">
           <SkyTooltip content="垂直居中对齐" direction="bottom" />
           <svg-icon filename="align-vertical-middle" />
         </SkyButton>
 
-        <SkyButton plain @click="$sky.cloud.alignBottom">
+        <SkyButton plain @click="sky.cloud.alignBottom">
           <SkyTooltip content="下对齐" direction="bottom" />
           <svg-icon filename="align-bottom" />
         </SkyButton>
 
         <div class="h-4 w-px bg-gray-300"></div>
 
-        <SkyButton plain @click="$sky.cloud.alignLeft">
+        <SkyButton plain @click="sky.cloud.alignLeft">
           <SkyTooltip content="左对齐" direction="bottom" />
           <svg-icon filename="align-left" />
         </SkyButton>
 
-        <SkyButton plain @click="$sky.cloud.alignHorizontalMiddle">
+        <SkyButton plain @click="sky.cloud.alignHorizontalMiddle">
           <SkyTooltip content="水平居中对齐" direction="bottom" />
           <svg-icon filename="align-horizontal-middle" />
         </SkyButton>
 
-        <SkyButton plain @click="$sky.cloud.alignRight">
+        <SkyButton plain @click="sky.cloud.alignRight">
           <SkyTooltip content="右对齐" direction="bottom" />
           <svg-icon filename="align-right" />
         </SkyButton>

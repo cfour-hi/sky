@@ -1,6 +1,7 @@
 import { Sky } from '@packages/sky/editor';
 import Selecto, { OnDragStart, OnSelect } from 'selecto';
 import { getElementInfo } from 'moveable';
+import { isBackgroundElement } from '../helper';
 
 export interface SelectoPlugin {
   createInstance(container: HTMLElement): void;
@@ -8,61 +9,25 @@ export interface SelectoPlugin {
 }
 
 export default function createSelecto(sky: Sky) {
+  let flagMousemove = false;
+
   const module: SelectoPlugin = {
     instance: null,
   } as unknown as SelectoPlugin;
-
-  let flogMousemove = false;
-
-  const onMousemove = async () => {
-    flogMousemove = true;
-    await sky.moveable.setTarget([]);
-  };
-
-  const onMouseup = async () => {
-    if (!flogMousemove) {
-      await sky.moveable.setTarget([]);
-    }
-    flogMousemove = false;
-  };
-
-  const onDragStart = (event: OnDragStart) => {
-    const moveableControlBox = document.querySelector('.moveable-control-box');
-    const skyControlPanel = document.querySelector('.sky-control-panel');
-
-    if (
-      moveableControlBox?.contains(event.inputEvent.target) ||
-      skyControlPanel?.contains(event.inputEvent.target)
-    ) {
-      return event.stop();
-    }
-
-    document.addEventListener('mousemove', onMousemove, { once: true });
-    document.addEventListener('mouseup', onMouseup, { once: true });
-  };
-
-  const onSelect = async (event: OnSelect) => {
-    await sky.moveable.setTarget([...event.selected] as HTMLElement[]);
-  };
-
-  const onSelectEnd = () => {
-    document.removeEventListener('mousemove', onMousemove);
-    document.removeEventListener('mousemove', onMouseup);
-  };
 
   module.createInstance = (container) => {
     module.instance = new Selecto({
       container,
       selectableTargets: ['.sky-cloud'],
+      // selectByClick & selectFromInside: 点击 cloud 的时候不触发 selecto
       selectByClick: false,
       selectFromInside: false,
       hitRate: 0,
       getElementRect: getElementInfo,
     });
 
-    module.instance.on('dragStart', onDragStart);
+    module.instance.on('selectStart', onSelectStart);
     module.instance.on('select', onSelect);
-    module.instance.on('selectEnd', onSelectEnd);
   };
 
   return new Proxy(module, {
@@ -82,4 +47,39 @@ export default function createSelecto(sky: Sky) {
       return true;
     },
   });
+
+  function onSelectStart(event: OnDragStart) {
+    const moveableControlBox = document.querySelector('.moveable-control-box');
+    const skyControlPanel = document.querySelector('.sky-control-panel');
+
+    if (
+      moveableControlBox?.contains(event.inputEvent.target) ||
+      skyControlPanel?.contains(event.inputEvent.target)
+    ) {
+      return event.stop();
+    }
+
+    document.addEventListener('mousemove', onMousemove, { once: true });
+    document.addEventListener('mouseup', onMouseup, { once: true });
+  }
+
+  async function onMousemove() {
+    flagMousemove = true;
+    await sky.moveable.setTarget([]);
+  }
+
+  async function onMouseup(event: MouseEvent) {
+    if (!flagMousemove) {
+      document.removeEventListener('mousemove', onMousemove);
+      if (isBackgroundElement(event.target as HTMLElement)) return;
+
+      await sky.moveable.setTarget([]);
+    }
+    flagMousemove = false;
+  }
+
+  async function onSelect(event: OnSelect) {
+    console.log('onSelect');
+    await sky.moveable.setTarget([...event.selected] as HTMLElement[]);
+  }
 }

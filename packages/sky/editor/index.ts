@@ -6,23 +6,23 @@ import createCloud, { Cloud, CloudPlugin } from './plugins/cloud';
 import createMoveable, { MoveablePlugin } from './plugins/moveable';
 import createSelecto, { SelectoPlugin } from './plugins/selecto';
 import createHistory, { HistoryPlugin } from './plugins/history';
-import { restoreSize } from '../tool';
 
 export interface CreateSkyOptions {
   maxHistoryStack?: number;
   initMousetrap?(sky: Sky): void;
+  selecto: string;
 }
 
 export interface BackgroundState {
   color: string;
-  opacity: number;
+  image: string | null;
 }
 
 export interface SkyState {
   width: number;
   height: number;
   scale: number;
-  background: BackgroundState;
+  bgStyle: object;
   clouds: Cloud[];
 }
 
@@ -50,22 +50,17 @@ export interface Sky {
 
 export default function createSky(options: CreateSkyOptions): Sky {
   options = { maxHistoryStack: 20, ...options };
-
   const module: Sky = {
     options,
     vm: null,
     cloudVM: {},
     birdVM: {},
   } as unknown as Sky;
-
   module.state = {
     width: 800,
     height: 800,
     scale: 1,
-    background: {
-      color: '#ffffff00',
-      opacity: 1,
-    },
+    bgStyle: {},
     clouds: [],
   };
   module.runtime = {
@@ -73,13 +68,11 @@ export default function createSky(options: CreateSkyOptions): Sky {
     selectCloud: null,
     clipboard: '',
   };
-
   module.editor = createEditor(module);
   module.cloud = createCloud(module);
   module.moveable = createMoveable(module);
   module.selecto = createSelecto(module);
   module.history = createHistory(module);
-
   module.setState = async (state) => {
     if (Reflect.has(state, 'width')) {
       module.moveable.instance.verticalGuidelines = [0, state.width];
@@ -95,11 +88,8 @@ export default function createSky(options: CreateSkyOptions): Sky {
       await module.moveable.setTarget([]);
     }
     Object.assign(module.state, state);
-    // Reflect.set(module, 'state', state);
   };
-
   options.initMousetrap?.(module);
-
   return module;
 }
 
@@ -110,13 +100,13 @@ interface InstallOptions {
 
 export const skyVuePlugin = {
   install(app: App, sky: Sky, options: InstallOptions) {
+    // 组件内容更新依赖数据的响应式
     sky.state = reactive(sky.state);
     sky.runtime = reactive(sky.runtime);
 
-    app.config.globalProperties.$sky = sky;
-
     app.use(skyRendererVuePlugin, options.components);
     app.component(SkyEditorComponent.name, SkyEditorComponent);
+    app.provide('sky', sky);
 
     if (options.ControlPanelContainer) {
       app.component(
@@ -124,7 +114,5 @@ export const skyVuePlugin = {
         options.ControlPanelContainer,
       );
     }
-
-    app.provide('sky', sky);
   },
 };

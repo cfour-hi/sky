@@ -1,160 +1,3 @@
-<script>
-export default {
-  name: 'EditorContextmenu',
-};
-</script>
-
-<script setup>
-import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue';
-import clickOutSide from '@/plugins/click-outside';
-
-let elAppMain = null;
-let clickOutSideIns = null;
-const overlappingClouds4Cloud = [];
-
-const sky = inject('sky');
-const showEl = ref(false);
-const subOverflowX = ref(false);
-const overlappingClouds4Point = ref([]);
-
-const hasTarget = computed(() => {
-  return sky.runtime.targetClouds.length > 0;
-});
-
-const isLock = computed(
-  () => hasTarget.value && sky.runtime.targetClouds[0].lock,
-);
-
-const disableMoveup = computed(() => {
-  const [lastCloud] = overlappingClouds4Cloud.slice(-1);
-  return (
-    !!sky.runtime.targetClouds.find((cloud) => cloud === lastCloud) ||
-    isLock.value
-  );
-});
-
-const disableMovedown = computed(() => {
-  const [firstCloud] = overlappingClouds4Cloud;
-  return (
-    !!sky.runtime.targetClouds.find((cloud) => cloud === firstCloud) ||
-    isLock.value
-  );
-});
-
-onMounted(() => {
-  elAppMain = document.querySelector('.app-main');
-  elAppMain.addEventListener('contextmenu', onContextmenu);
-  clickOutSideIns = clickOutSide($el, onClickOutSide);
-});
-
-onBeforeUnmount(() => {
-  elAppMain.removeEventListener('contextmenu', this.onContextmenu);
-  clickOutSideIns.destroy();
-});
-
-function onContextmenu(event) {
-  const { target, clientX, clientY } = event;
-
-  const skyControlPanel = document.querySelector('.sky-control-panel');
-  if (skyControlPanel?.contains(target)) return;
-
-  event.preventDefault();
-  event.stopPropagation();
-
-  const elSubmenu = document.querySelector(
-    '.editor-contextmenu__item-parent .editor-contextmenu',
-  );
-
-  const appMainRect = elAppMain.getBoundingClientRect();
-  const { clientWidth, clientHeight } = $el;
-
-  const dis = appMainRect.right - clientX - clientWidth;
-  const overflowX = dis < 0;
-  subOverflowX.value = dis - elSubmenu.clientWidth < 0;
-  const overflowY = appMainRect.bottom - clientY - clientHeight < 0;
-
-  Object.assign($el.style, {
-    left: `${overflowX ? clientX - clientWidth : clientX}px`,
-    top: `${overflowY ? appMainRect.bottom - clientHeight : clientY}px`,
-  });
-
-  overlappingClouds4Point.value = sky.cloud.getOverlappingClouds4Point(event);
-  overlappingClouds4Cloud = hasTarget.value
-    ? sky.cloud.getOverlappingClouds4Cloud()
-    : [];
-
-  showEl.value = true;
-}
-
-function onClickOutSide() {
-  showEl.value = false;
-}
-
-function handleClick() {
-  showEl.value = false;
-}
-
-function handleClickCopy(e) {
-  if (!hasTarget.value || isLock.value) {
-    e.stopPropagation();
-    return;
-  }
-
-  sky.cloud.copy();
-}
-
-function handleClickCut(e) {
-  if (!hasTarget.value || isLock.value) {
-    e.stopPropagation();
-    return;
-  }
-
-  sky.cloud.cut();
-}
-
-function handleClickPaste(e) {
-  if (!sky.runtime.clipboard) {
-    e.stopPropagation();
-    return;
-  }
-
-  sky.cloud.paste();
-}
-
-function handleClickLock() {
-  if (isLock.value) {
-    sky.cloud.unlock();
-  } else {
-    sky.cloud.lock();
-  }
-}
-
-function handleClickMove(key, e) {
-  e.stopPropagation();
-
-  if (disableMoveup.value) {
-    if (['moveTop', 'moveUp'].includes(key)) return;
-  }
-
-  if (disableMovedown.value) {
-    if (['moveBottom', 'moveDown'].includes(key)) return;
-  }
-
-  sky.cloud[key]();
-  overlappingClouds4Cloud = sky.cloud.getOverlappingClouds4Cloud();
-}
-
-async function handleClickSelectCloud(cloud) {
-  await sky.moveable.setTarget([sky.cloud.queryCloudElementById(cloud.id)]);
-}
-
-function handleClickDelete() {
-  if (isLock.value) return;
-
-  sky.cloud.delete();
-}
-</script>
-
 <template>
   <ul
     class="editor-contextmenu"
@@ -183,7 +26,7 @@ function handleClickDelete() {
     <li
       class="editor-contextmenu__item"
       :class="{ disabled: !sky.runtime.clipboard }"
-      @click="$sky.cloud.paste"
+      @click="sky.cloud.paste"
     >
       <span>粘贴</span>
       <span class="editor-contextmenu__subtitle">⌘ + V</span>
@@ -314,6 +157,154 @@ function handleClickDelete() {
     </li>
   </ul>
 </template>
+
+<script>
+export default {
+  name: 'EditorContextmenu',
+};
+</script>
+
+<script setup>
+import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue';
+import clickOutSide from '@/plugins/click-outside';
+
+let elAppMain = null;
+let clickOutSideIns = null;
+const overlappingClouds4Cloud = [];
+
+const sky = inject('sky');
+const showEl = ref(false);
+const subOverflowX = ref(false);
+const overlappingClouds4Point = ref([]);
+
+const hasTarget = computed(() => {
+  return sky.runtime.targetClouds.length > 0;
+});
+
+const isLock = computed(
+  () => hasTarget.value && sky.runtime.targetClouds[0].lock,
+);
+
+const disableMoveup = computed(() => {
+  const [lastCloud] = overlappingClouds4Cloud.slice(-1);
+  return (
+    !!sky.runtime.targetClouds.find((cloud) => cloud === lastCloud) ||
+    isLock.value
+  );
+});
+
+const disableMovedown = computed(() => {
+  const [firstCloud] = overlappingClouds4Cloud;
+  return (
+    !!sky.runtime.targetClouds.find((cloud) => cloud === firstCloud) ||
+    isLock.value
+  );
+});
+
+onMounted(() => {
+  elAppMain = document.querySelector('.app-main');
+  elAppMain.addEventListener('contextmenu', onContextmenu);
+  clickOutSideIns = clickOutSide($el, onClickOutSide);
+});
+
+onBeforeUnmount(() => {
+  elAppMain.removeEventListener('contextmenu', this.onContextmenu);
+  clickOutSideIns.destroy();
+});
+
+function onContextmenu(event) {
+  const { target, clientX, clientY } = event;
+  const skyControlPanel = document.querySelector('.sky-control-panel');
+  if (skyControlPanel?.contains(target)) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const elSubmenu = document.querySelector(
+    '.editor-contextmenu__item-parent .editor-contextmenu',
+  );
+  const appMainRect = elAppMain.getBoundingClientRect();
+  const { clientWidth, clientHeight } = $el;
+  const dis = appMainRect.right - clientX - clientWidth;
+  const overflowX = dis < 0;
+  const overflowY = appMainRect.bottom - clientY - clientHeight < 0;
+  subOverflowX.value = dis - elSubmenu.clientWidth < 0;
+
+  Object.assign($el.style, {
+    left: `${overflowX ? clientX - clientWidth : clientX}px`,
+    top: `${overflowY ? appMainRect.bottom - clientHeight : clientY}px`,
+  });
+  overlappingClouds4Point.value = sky.cloud.getOverlappingClouds4Point(event);
+  overlappingClouds4Cloud = hasTarget.value
+    ? sky.cloud.getOverlappingClouds4Cloud()
+    : [];
+
+  showEl.value = true;
+}
+
+function onClickOutSide() {
+  showEl.value = false;
+}
+
+function handleClick() {
+  showEl.value = false;
+}
+
+function handleClickCopy(e) {
+  if (!hasTarget.value || isLock.value) {
+    e.stopPropagation();
+    return;
+  }
+  sky.cloud.copy();
+}
+
+function handleClickCut(e) {
+  if (!hasTarget.value || isLock.value) {
+    e.stopPropagation();
+    return;
+  }
+  sky.cloud.cut();
+}
+
+function handleClickPaste(e) {
+  if (!sky.runtime.clipboard) {
+    e.stopPropagation();
+    return;
+  }
+  sky.cloud.paste();
+}
+
+function handleClickLock() {
+  if (isLock.value) {
+    sky.cloud.unlock();
+  } else {
+    sky.cloud.lock();
+  }
+}
+
+function handleClickMove(key, e) {
+  e.stopPropagation();
+
+  if (disableMoveup.value) {
+    if (['moveTop', 'moveUp'].includes(key)) return;
+  }
+  if (disableMovedown.value) {
+    if (['moveBottom', 'moveDown'].includes(key)) return;
+  }
+
+  sky.cloud[key]();
+  overlappingClouds4Cloud = sky.cloud.getOverlappingClouds4Cloud();
+}
+
+async function handleClickSelectCloud(cloud) {
+  await sky.moveable.setTarget([sky.cloud.queryCloudElementById(cloud.id)]);
+}
+
+function handleClickDelete() {
+  if (isLock.value) return;
+  sky.cloud.delete();
+}
+</script>
 
 <style lang="scss" scoped>
 .editor-contextmenu {

@@ -21,8 +21,9 @@ export default function createHistory(sky: Sky) {
 
   const setPointer = (pointer: number) => {
     module.pointer = pointer;
-
-    const stack: SkyState & SkyRuntime = JSON.parse(module.stacks[pointer]);
+    const stack: { state: SkyState; runtime: SkyRuntime } = JSON.parse(
+      module.stacks[pointer],
+    );
     if (!stack) return;
 
     /**
@@ -32,21 +33,16 @@ export default function createHistory(sky: Sky) {
      * 所以要禁止新增历史记录
      */
     module.disable = true;
-
-    sky.state.scale = stack.scale;
-    sky.state.clouds = stack.clouds;
-    sky.editor.setBackground(stack.background);
+    Object.assign(sky.state, stack.state);
+    Object.assign(sky.runtime, stack.runtime);
 
     setTimeout(async () => {
-      const target = stack.targetClouds.map((cloud) =>
+      const target = stack.runtime.targetClouds.map((cloud) =>
         sky.cloud.queryCloudElementById(cloud.id),
       );
-
       await sky.moveable.setTarget(target as HTMLElement[]);
 
-      sky.cloud.updateCloudsElementRect(stack.clouds);
-      sky.moveable.instance.updateRect();
-
+      sky.cloud.updateCloudsElementRect(stack.state.clouds);
       // clouds 发生任何改变都会触发添加历史记录
       // 等到数据更新完成之后再允许添加历史记录
       module.disable = false;
@@ -57,14 +53,16 @@ export default function createHistory(sky: Sky) {
     if (module.disable) return;
 
     clearTimeout(historyTimer);
-
     historyTimer = setTimeout(() => {
       if (module.pointer > 0) {
         module.stacks.splice(0, module.pointer);
       }
-
-      module.stacks.unshift(JSON.stringify(sky.state));
-
+      module.stacks.unshift(
+        JSON.stringify({
+          state: sky.state,
+          runtime: sky.runtime,
+        }),
+      );
       if (module.pointer > 0) {
         module.pointer = 0;
       }

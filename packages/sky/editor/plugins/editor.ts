@@ -16,10 +16,6 @@ export interface EditorPlugin {
 export default function createEditor(sky: Sky) {
   const module: EditorPlugin = {} as unknown as EditorPlugin;
 
-  module.setBackground = (background) => {
-    Object.assign(sky.state.background, background);
-  };
-
   module.zoom = (scale = 1) => {
     if (scale === 0) return;
     if (scale === sky.state.scale) return;
@@ -49,7 +45,9 @@ export default function createEditor(sky: Sky) {
     sky.state.height = scaleSize4Pre(sky.state.height, sky.state.scale, scale);
 
     // sky-editor 宽高样式使用 computed
-    setTimeout(sky.moveable.instance.updateRect);
+    setTimeout(() => {
+      sky.moveable.instance.updateRect();
+    });
   };
 
   return module;

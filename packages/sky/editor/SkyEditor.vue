@@ -1,13 +1,6 @@
 <template>
   <div ref="elRoot" class="sky-editor" :style="rootStyle">
-    <SkyRenderer
-      ref="elSkyRenderer"
-      :background="sky.state.background"
-      :clouds="sky.state.clouds"
-      :scale="sky.state.scale"
-      @mousedown="handleMousedownLeft"
-    />
-
+    <SkyRenderer ref="elSkyRenderer" :state="sky.state" />
     <ControlPanelContainer class="sky-control-panel" />
   </div>
 </template>
@@ -23,8 +16,10 @@ import {
   computed,
   inject,
   onMounted,
+  onBeforeUnmount,
   ref,
   watch,
+  watchEffect,
   getCurrentInstance,
 } from 'vue';
 import { isBackgroundElement, isLockCloudElement } from './helper';
@@ -32,24 +27,30 @@ import { isBackgroundElement, isLockCloudElement } from './helper';
 const sky = inject('sky');
 sky.vm = getCurrentInstance();
 
-const elRoot = ref(null);
-const elSkyRenderer = ref(null);
+const props = defineProps({
+  bgStyle: Object,
+});
 
-let mousedownEvent = null;
-let mousedownTarget = null;
-let mousedownAndMoved = false;
+const elSkyRenderer = ref();
 
 const rootStyle = computed(() => ({
   width: `${sky.state.width}px`,
   height: `${sky.state.height}px`,
 }));
 
+const elRoot = ref();
 onMounted(() => {
   sky.moveable.createInstance(elRoot.value);
+  sky.selecto.createInstance(document.querySelector(sky.options.selecto));
+  elSkyRenderer.value.$el.addEventListener('mousedown', onMousedownLeft);
+});
+
+onBeforeUnmount(() => {
+  elSkyRenderer.value.$el.removeEventListener('mousedown', onMousedownLeft);
 });
 
 watch(
-  [() => sky.state.clouds, () => sky.state.background],
+  [() => sky.state.clouds, () => props.bgStyle],
   () => {
     sky.history.unshift();
   },
@@ -58,6 +59,14 @@ watch(
     deep: true,
   },
 );
+
+watchEffect(() => {
+  sky.state.bgStyle = props.bgStyle;
+});
+
+let mousedownEvent = null;
+let mousedownTarget = null;
+let mousedownAndMoved = false;
 
 async function mousemove() {
   mousedownAndMoved = true;
@@ -68,31 +77,33 @@ async function mousemove() {
   }
 
   await sky.moveable.setTarget(mousedownTarget);
+  sky.moveable.instance.dragStart(mousedownEvent); // 触发拖动
 
-  sky.moveable.instance.dragStart(mousedownEvent);
+  console.log('mmousemove');
 }
 
 async function mouseup(event) {
-  document.removeEventListener('mousemove', mousemove);
-  document.removeEventListener('mouseup', mouseup);
-
+  if (!mousedownAndMoved) {
+    document.removeEventListener('mousemove', mousemove);
+  }
   if (mousedownAndMoved) {
     mousedownAndMoved = false;
   } else {
     await sky.moveable.setTarget(mousedownTarget);
     sky.cloud.setSelectCloud(event);
   }
-
   mousedownEvent = null;
   mousedownTarget = null;
 }
 
-function handleMousedownLeft(event) {
+// 点击左键的时候就需要获取目标图层，但是不选中
+// 等到 mousemove or mouseup 的时候再选中
+function onMousedownLeft(event) {
   mousedownEvent = event;
   mousedownTarget = sky.moveable.getTarget(event);
 
-  document.addEventListener('mousemove', mousemove);
-  document.addEventListener('mouseup', mouseup);
+  document.addEventListener('mousemove', mousemove, { once: true });
+  document.addEventListener('mouseup', mouseup, { once: true });
 }
 
 defineExpose({ elSkyRenderer });

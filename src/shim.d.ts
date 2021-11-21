@@ -6,9 +6,3 @@ import { Sky } from '@packages/sky/editor';
 // }
 
 // declare const PSD: PSDClass;
-
-declare module '@vue/runtime-core' {
-  export interface ComponentInternalInstance {
-    $sky: Sky;
-  }
-}

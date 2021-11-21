@@ -7,7 +7,7 @@
           :key="tab.props.label"
           class="sky-tab__title"
           :class="{ 'sky-active': tab.props.label === value }"
-          @click="handleClickTabTitle(tab, index)"
+          @click="onClickTab(tab, index)"
         >
           {{ tab.props.label }}
         </div>
@@ -39,40 +39,41 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:value', 'change']);
 
-let tabWidth = 0;
+watch(
+  () => props.value,
+  () => {
+    changeTab();
+  },
+);
+
 const tabs = ref([]);
 const sliderStyle = reactive({ width: 0, left: 0 });
+let tabWidth = 0;
+onMounted(() => {
+  // 初始化数据
+  tabWidth = 100 / tabs.value.length;
+  sliderStyle.width = `${tabWidth}%`;
+
+  changeTab();
+});
 
 let preActiveTabVM = null;
-
-function changeActiveTab(value) {
-  const index = tabs.value.findIndex((vm) => {
-    return vm.props.label === value;
-  });
+function changeTab(index = -1) {
+  if (index < 0) {
+    index = tabs.value.findIndex((vm) => vm.props.label === props.value);
+  }
   sliderStyle.left = `${tabWidth * index}%`;
 
+  // 切换 tab 内容
+  preActiveTabVM?.exposed?.changeActive?.(false);
   preActiveTabVM = tabs.value[index];
   preActiveTabVM.exposed?.changeActive?.(true);
 }
 
-function handleClickTabTitle(tab, index) {
+function onClickTab(tab, index) {
   emit('update:value', tab.props.label);
-  emit('change', tab.props.label);
-
-  sliderStyle.left = `${tabWidth * index}%`;
-
-  preActiveTabVM?.exposed?.changeActive?.(false);
-  preActiveTabVM = tabs.value[index];
-  preActiveTabVM.exposed.changeActive(true);
+  changeTab(index);
 }
-
-watch(() => props.value, changeActiveTab);
-
-onMounted(() => {
-  tabWidth = 100 / tabs.value.length;
-  sliderStyle.width = `${tabWidth}%`;
-  changeActiveTab(props.value);
-});
 
 defineExpose({ tabs });
 </script>

@@ -190,13 +190,11 @@ export async function convertPSD2Sky(psd: any) {
   const background = {
     color: '#ffffff00',
     image: '',
-    opacity: 1,
   };
   const [bgData] = children.slice(-1);
   if (['Background', 'background', '背景'].includes(bgData.name)) {
     const layer = findLayer(bgData);
     const image = toCloudImageConfig(bgData, layer);
-    background.opacity = image.opacity;
     background.image = image.src;
 
     children.pop();

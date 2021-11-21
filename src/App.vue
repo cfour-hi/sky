@@ -12,13 +12,26 @@ import AppMain from '@/components/AppMain.vue';
 import { loadLocalTemplateData } from '@/plugins/template';
 import { useFontStore } from '@/stores/font';
 import { filterSkyFonts } from '@/utils/font';
+import { useBackgroundStore } from './stores/background';
 
+const backgroundStore = useBackgroundStore();
 const fontStore = useFontStore();
 const promiseFontFetch = fontStore.fetch();
 
 onMounted(async () => {
   const data = loadLocalTemplateData();
   if (data) {
+    const { background } = data.bgStyle;
+    const bgState = {};
+    if (background.startsWith('url')) {
+      bgState.type = '图片';
+      const [url] = background.match(/(?<=url\()[^)]+/);
+      bgState.image = url;
+    } else {
+      bgState.type = '颜色';
+      bgState.color = background;
+    }
+    backgroundStore.setState(bgState);
     sky.setState(data);
   }
 

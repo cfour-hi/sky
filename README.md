@@ -1,11 +1,51 @@
-# Vue 3 + Typescript + Vite
+# Sky
 
-This template should help get you started developing with Vue 3 and Typescript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+> Sky 即 “天空”，把天空比作画布。
 
-## Recommended IDE Setup
+- 功能、UI 风格抄袭 @稿定设计，追求品质；
+- packages/sky-ui 是基础 UI 库；
+- packages/sky 是基于 [moveable](https://github.com/daybrush/moveable) 封装的交互插件，面向未来可快速实现 GIF、H5、PPT 编辑器；
+- 使用 [psd.js](https://github.com/meltingice/psd.js) 解析 PSD 文件，目前只做到最最最基本的还原，很不理想。看啥时候能啃下来 [Adobe Photoshop
+  File Formats](https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/)；
+- 使用 [gifuct-js](https://github.com/matt-way/gifuct-js) 解析 GIF，使用 [gif.js](https://github.com/jnordberg/gif.js/) 生成 GIF。做了些处理，生成速度贼快。
+- 调用了 @稿定设计 的一些接口；
 
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+## 技术栈
 
-## Type Support For `.vue` Imports in TS
+- [Vite](https://github.com/vitejs/vite)
+- [Vue@3](https://github.com/vuejs/vue-next)
+- [VueUse](https://github.com/vueuse/vueuse)
+- [Pinia](https://github.com/posva/pinia)
+- [TypeScript](https://github.com/microsoft/TypeScript)
+- [TailwindCSS](https://github.com/tailwindlabs/tailwindcss)
+- [Sass](https://github.com/sass/sass)
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's `.vue` type support plugin by running `Volar: Switch TS Plugin on/off` from VSCode command palette.
+- 文字编辑，可修改局部样式
+  - 文字换行还有问题
+  - 未知
+
+## TODO
+
+### 基础
+
+- [ ] 编辑画布尺寸
+- [x] 画布背景
+- [ ] 右键菜单
+- [x] 图层锁定、复制、删除、不透明度
+- [x] 图层交互，可拖动、可修改尺寸、可旋转
+- [x] 重叠图层
+- [x] 图层打组
+- [x] 图层组对齐
+- [x] 文字字体、尺寸、粗细、斜体、下划线、删除线、对齐、颜色、字间距、行间距、方向
+- [ ] 文字描边、阴影、填充、变形
+- [x] 文字局部修改
+- [ ] 图片蒙版
+
+## 进阶
+
+- [ ] PSD 解析、还原
+- [x] 图层框选、等比缩放
+- [x] 图层移动吸附、参考线
+- [x] 文字尺寸、字间距随图层大小而改变
+- [x] 文字横向不可纵向拉伸，文字纵向不可横向拉伸
+- [ ] PNG 图透明背景点击穿透

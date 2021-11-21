@@ -8,8 +8,8 @@ import { CLOUD_TYPE } from '@/constants';
 
 export const sky = createSky({
   initMousetrap,
+  selecto: '.app-main',
 });
-
 (window as any).sky = sky;
 
 export default {
