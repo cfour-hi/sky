@@ -23,6 +23,7 @@ import {
   getCurrentInstance,
 } from 'vue';
 import { isBackgroundElement, isLockCloudElement } from './helper';
+import { SKY_BACKGROUND, SKY_BACKGROUND_ACTIVE } from '../constants';
 
 const sky = inject('sky');
 sky.vm = getCurrentInstance();
@@ -31,6 +32,8 @@ const props = defineProps({
   bgStyle: Object,
 });
 
+let elSkyBackground;
+const elRoot = ref();
 const elSkyRenderer = ref();
 
 const rootStyle = computed(() => ({
@@ -38,11 +41,14 @@ const rootStyle = computed(() => ({
   height: `${sky.state.height}px`,
 }));
 
-const elRoot = ref();
 onMounted(() => {
   sky.moveable.createInstance(elRoot.value);
   sky.selecto.createInstance(document.querySelector(sky.options.selecto));
   elSkyRenderer.value.$el.addEventListener('mousedown', onMousedownLeft);
+  elSkyBackground = elSkyRenderer.value.$el.querySelector(`.${SKY_BACKGROUND}`);
+  elSkyBackground.addEventListener('click', () => {
+    elSkyBackground.classList.add(SKY_BACKGROUND_ACTIVE);
+  });
 });
 
 onBeforeUnmount(() => {
@@ -71,15 +77,12 @@ let mousedownAndMoved = false;
 async function mousemove() {
   mousedownAndMoved = true;
   const [target0] = mousedownTarget;
-
   if (!target0 || isBackgroundElement(target0) || isLockCloudElement(target0)) {
     return;
   }
 
   await sky.moveable.setTarget(mousedownTarget);
   sky.moveable.instance.dragStart(mousedownEvent); // 触发拖动
-
-  console.log('mmousemove');
 }
 
 async function mouseup(event) {
@@ -102,8 +105,10 @@ function onMousedownLeft(event) {
   mousedownEvent = event;
   mousedownTarget = sky.moveable.getTarget(event);
 
-  document.addEventListener('mousemove', mousemove, { once: true });
-  document.addEventListener('mouseup', mouseup, { once: true });
+  if (mousedownTarget.length > 0) {
+    document.addEventListener('mousemove', mousemove, { once: true });
+    document.addEventListener('mouseup', mouseup, { once: true });
+  }
 }
 
 defineExpose({ elSkyRenderer });

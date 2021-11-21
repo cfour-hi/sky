@@ -1,6 +1,6 @@
 <template>
   <div class="sky-renderer">
-    <div class="sky-background" :style="props.state.bgStyle"></div>
+    <div :class="backgroundClass" :style="props.state.bgStyle"></div>
 
     <component
       v-for="cloud in props.state.clouds"
@@ -22,10 +22,13 @@ export default {
 <script setup>
 import Clouds from './Clouds.vue';
 import Cloud from './Cloud.vue';
+import { SKY_BACKGROUND } from '../constants';
 
 const props = defineProps({
   state: Object,
 });
+
+const backgroundClass = [SKY_BACKGROUND];
 
 function toComponent(cloud) {
   if (cloud.type === 'clouds') {

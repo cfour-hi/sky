@@ -1,7 +1,11 @@
-import { Sky } from '@packages/sky/editor';
+import { Sky } from '../index';
 import Selecto, { OnDragStart, OnSelect } from 'selecto';
 import { getElementInfo } from 'moveable';
-import { isBackgroundElement } from '../helper';
+import {
+  SKY_CLOUD_LOCK,
+  SKY_BACKGROUND,
+  SKY_BACKGROUND_ACTIVE,
+} from '../../constants';
 
 export interface SelectoPlugin {
   createInstance(container: HTMLElement): void;
@@ -10,6 +14,7 @@ export interface SelectoPlugin {
 
 export default function createSelecto(sky: Sky) {
   let flagMousemove = false;
+  let elSkyBackground: HTMLElement;
 
   const module: SelectoPlugin = {
     instance: null,
@@ -26,8 +31,12 @@ export default function createSelecto(sky: Sky) {
       getElementRect: getElementInfo,
     });
 
-    module.instance.on('selectStart', onSelectStart);
+    // 不能用 selectStart，会导致缩放的时候也触发框选
+    module.instance.on('dragStart', onDragStart);
     module.instance.on('select', onSelect);
+    module.instance.on('selectEnd', onSelectEnd);
+
+    elSkyBackground = sky.vm.subTree.el.querySelector(`.${SKY_BACKGROUND}`);
   };
 
   return new Proxy(module, {
@@ -48,7 +57,7 @@ export default function createSelecto(sky: Sky) {
     },
   });
 
-  function onSelectStart(event: OnDragStart) {
+  function onDragStart(event: OnDragStart) {
     const moveableControlBox = document.querySelector('.moveable-control-box');
     const skyControlPanel = document.querySelector('.sky-control-panel');
 
@@ -63,23 +72,26 @@ export default function createSelecto(sky: Sky) {
     document.addEventListener('mouseup', onMouseup, { once: true });
   }
 
-  async function onMousemove() {
+  function onMousemove() {
     flagMousemove = true;
-    await sky.moveable.setTarget([]);
+    sky.moveable.setTarget([]);
   }
 
   async function onMouseup(event: MouseEvent) {
     if (!flagMousemove) {
       document.removeEventListener('mousemove', onMousemove);
-      if (isBackgroundElement(event.target as HTMLElement)) return;
-
-      await sky.moveable.setTarget([]);
     }
     flagMousemove = false;
   }
 
-  async function onSelect(event: OnSelect) {
-    console.log('onSelect');
-    await sky.moveable.setTarget([...event.selected] as HTMLElement[]);
+  function onSelect(event: OnSelect) {
+    const selected = event.selected.filter(
+      (el) => !el.classList.contains(SKY_CLOUD_LOCK),
+    );
+    sky.moveable.setTarget(selected as HTMLElement[]);
+  }
+
+  function onSelectEnd() {
+    elSkyBackground.classList.remove(SKY_BACKGROUND_ACTIVE);
   }
 }

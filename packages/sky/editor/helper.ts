@@ -1,3 +1,5 @@
+import { SKY_CLOUD_LOCK } from '../constants';
+
 export const isCloudElement = (cloud: HTMLElement | SVGElement): boolean => {
   return cloud.classList.contains('sky-cloud');
 };
@@ -18,7 +20,7 @@ export const isBackgroundElement = (
 };
 
 export const isLockCloudElement = (el: HTMLElement | SVGElement): boolean => {
-  return el.classList.contains('sky-cloud-lock');
+  return el.classList.contains(SKY_CLOUD_LOCK);
 };
 
 export const lookUpParentCloudElement = (
@@ -26,6 +28,8 @@ export const lookUpParentCloudElement = (
 ): HTMLElement | null => {
   while (el && !el.dataset.cloudId && !isCloudElement(el)) {
     el = el.parentElement;
+    // 找到 sky-renderer 就不找了
+    if (el?.classList.contains('sky-renderer')) return null;
   }
   return el;
 };
@@ -39,6 +43,5 @@ export const lookUpTopCloudElement = (
   if (isCloudElementInCloudsElement(el) && el.parentElement) {
     return lookUpTopCloudElement(el.parentElement);
   }
-
   return el;
 };

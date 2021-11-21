@@ -13,7 +13,7 @@
     "axios": "^0.23.0",
     "gifuct-js": "^2.1.2",
     "mousetrap": "^1.6.5",
-    "moveable": "^0.26.0",
+    "moveable": "^0.27.2",
     "normalize.css": "^8.0.1",
     "pinia": "^2.0.0-rc.15",
     "progressbar.js": "^1.1.0",

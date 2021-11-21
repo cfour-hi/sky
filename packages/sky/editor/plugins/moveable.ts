@@ -99,54 +99,36 @@ export default function createMoveable(sky: Sky) {
   };
 
   module.getTarget = (event) => {
-    const { target } = module.instance;
-    if (!Array.isArray(target)) return [];
+    let targetEl = lookUpTopCloudElement(event.target);
+    if (!targetEl) return [];
 
-    let newTarget = [...target];
+    const withCSKey = withCtrlOrShiftKey(event);
+    // 点击到 moveable dragArea 不会进入此方法，这里一定是点击新的图层
+    if (!withCSKey) return [targetEl];
 
-    const isBackground = isBackgroundElement(event.target);
-    let targetEl: HTMLElement | null = null;
-
-    if (isBackground) {
-      targetEl = event.target;
-    } else {
-      targetEl = lookUpTopCloudElement(event.target);
-      if (!targetEl) return [];
+    const targetCloud = sky.cloud.findCloudById(targetEl.dataset.cloudId);
+    // 目标图层被锁定 或 当前图层被锁定，都不能多选
+    if (targetCloud?.lock || sky.runtime.targetClouds[0].lock) {
+      return module.instance.target as HTMLElement[];
     }
 
-    if (withCtrlOrShiftKey(event)) {
-      // 背景
-      if (isBackground) return target;
-      if (isBackgroundElement(target[0]) && targetEl) return [targetEl];
-
-      const targetCloud = sky.cloud.findCloudByElement(event.target);
-      if (!targetCloud) return [];
-
-      // 锁定
-      if (targetCloud.lock) return target;
-      if (sky.runtime.targetClouds[0].lock) return target;
-
-      const targetIndex = newTarget.findIndex((t) => t === targetEl);
-
-      if (targetIndex < 0) {
-        newTarget.push(targetEl as HTMLElement);
-      } else {
-        newTarget.splice(targetIndex, 1);
-      }
+    // moveable target 肯定为数组
+    const newTarget = [...(module.instance.target as HTMLElement[])];
+    const targetIndex = newTarget.findIndex((t) => t === targetEl);
+    if (targetIndex < 0) {
+      newTarget.push(targetEl);
     } else {
-      newTarget = [targetEl as HTMLElement];
+      // 图标图层已选中的情况下，取消选中
+      newTarget.splice(targetIndex, 1);
     }
-
     return newTarget;
   };
 
   module.setTarget = async (target) => {
-    const oldTarget = module.instance.target;
+    const oldTarget = module.instance.target as HTMLElement[];
 
     if (target) {
-      if (!Array.isArray(oldTarget)) return;
       if (isEqualArray(target, oldTarget)) return;
-
       module.instance.target = target;
 
       // FIXME: moveable target 的赋值有 setTimeout 延迟
@@ -159,17 +141,18 @@ export default function createMoveable(sky: Sky) {
         targetClouds.includes(cloud),
       );
 
+      // 切换新的 target，移除组图层内的选中图层
       sky.cloud.setSelectCloud(null);
 
       const leaveTargets = difference(oldTarget, target);
-      leaveTargets.forEach((target) => {
-        const vm = sky.birdVM[target.dataset.cloudId];
+      leaveTargets.forEach((_target) => {
+        const vm = sky.birdVM[_target.dataset.cloudId as string];
         vm?.exposed?.skyHooks?.moveable?.onLeaveTarget?.();
       });
 
       const enterTargets = difference(target, oldTarget);
-      enterTargets.forEach((target) => {
-        const vm = sky.birdVM[target.dataset.cloudId];
+      enterTargets.forEach((_target) => {
+        const vm = sky.birdVM[_target.dataset.cloudId as string];
         vm?.exposed?.skyHooks?.moveable?.onEnterTarget?.();
       });
 
@@ -187,15 +170,11 @@ export default function createMoveable(sky: Sky) {
       });
     } else {
       module.instance.target = [];
-
-      if (!Array.isArray(oldTarget)) return;
-
-      oldTarget.forEach((target) => {
-        const vm = sky.birdVM[target.dataset.cloudId];
+      oldTarget.forEach((_target) => {
+        const vm = sky.birdVM[_target.dataset.cloudId as string];
         vm?.exposed?.skyHooks?.moveable?.onLeaveTarget?.();
       });
     }
-
     module.updateState();
   };
 
@@ -408,12 +387,14 @@ export default function createMoveable(sky: Sky) {
     sky.history.unshift();
   };
 
-  const onClickMoveableArea = (event: OnClick): void => {
+  const onClickMoveableArea = async (event: OnClick) => {
     // console.log('onClickMoveableArea', event);
 
-    const target = module.getTarget(event.inputEvent);
-    module.setTarget(target);
-
+    // 多选的情况下，切换选中其中一个
+    if (sky.runtime.targetClouds.length > 1) {
+      const target = module.getTarget(event.inputEvent);
+      await module.setTarget(target);
+    }
     sky.cloud.setSelectCloud(event.inputEvent);
 
     const birdVM = sky.birdVM[event.target.dataset.cloudId as string];
@@ -423,8 +404,8 @@ export default function createMoveable(sky: Sky) {
   module.createInstance = (el) => {
     (window as any).moveableInstance = module.instance = new Moveable(el, {
       target: [],
-      snappable: true,
-      snapCenter: true,
+      // snappable: true,
+      // snapCenter: true,
       dragArea: true,
       horizontalGuidelines: [0, el.offsetWidth],
       verticalGuidelines: [0, el.offsetHeight],
