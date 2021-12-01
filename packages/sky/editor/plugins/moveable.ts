@@ -404,8 +404,7 @@ export default function createMoveable(sky: Sky) {
   module.createInstance = (el) => {
     (window as any).moveableInstance = module.instance = new Moveable(el, {
       target: [],
-      // snappable: true,
-      // snapCenter: true,
+      snappable: true,
       dragArea: true,
       horizontalGuidelines: [0, el.offsetWidth],
       verticalGuidelines: [0, el.offsetHeight],

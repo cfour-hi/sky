@@ -23,7 +23,6 @@ import {
   getCurrentInstance,
 } from 'vue';
 import { isBackgroundElement, isLockCloudElement } from './helper';
-import { SKY_BACKGROUND, SKY_BACKGROUND_ACTIVE } from '../constants';
 
 const sky = inject('sky');
 sky.vm = getCurrentInstance();
@@ -32,7 +31,6 @@ const props = defineProps({
   bgStyle: Object,
 });
 
-let elSkyBackground;
 const elRoot = ref();
 const elSkyRenderer = ref();
 
@@ -45,10 +43,6 @@ onMounted(() => {
   sky.moveable.createInstance(elRoot.value);
   sky.selecto.createInstance(document.querySelector(sky.options.selecto));
   elSkyRenderer.value.$el.addEventListener('mousedown', onMousedownLeft);
-  elSkyBackground = elSkyRenderer.value.$el.querySelector(`.${SKY_BACKGROUND}`);
-  elSkyBackground.addEventListener('click', () => {
-    elSkyBackground.classList.add(SKY_BACKGROUND_ACTIVE);
-  });
 });
 
 onBeforeUnmount(() => {
