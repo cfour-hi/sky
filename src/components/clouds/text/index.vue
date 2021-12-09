@@ -76,6 +76,7 @@ const textContentStyle = computed(() => {
     textAlign: props.cloud.textAlign,
     color: props.cloud.color,
     writingMode: props.cloud.writingMode,
+    fontFamily: props.cloud.fontFamily,
   };
 
   const isVertical = props.cloud.writingMode === WRITING_MODE.v;

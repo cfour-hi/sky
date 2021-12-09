@@ -1,3 +1,15 @@
+<template>
+  <div class="sky-option" :class="rootClass" @click="handleClick">
+    <template v-if="$slots.default">
+      <slot />
+    </template>
+
+    <span v-else>
+      {{ label }}
+    </span>
+  </div>
+</template>
+
 <script>
 export default {
   name: 'SkyOption',
@@ -31,23 +43,6 @@ function handleClick() {
   vmSelect.exposed.handleChange(props.value);
 }
 </script>
-
-<template>
-  <div
-    class="sky-option"
-    :class="rootClass"
-    :value="value"
-    @click="handleClick"
-  >
-    <template v-if="$slots.default">
-      <slot />
-    </template>
-
-    <span v-else>
-      {{ label }}
-    </span>
-  </div>
-</template>
 
 <style lang="scss" scoped>
 .sky-option {

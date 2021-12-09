@@ -1,6 +1,6 @@
 <template>
   <div class="sky-select" data-sky-popup>
-    <div @click="showPopup = !showPopup">
+    <div @click="onClick">
       <SkyInput :value="value" readonly />
 
       <!-- 避免 focus 到 input -->
@@ -11,7 +11,11 @@
       </div>
     </div>
 
-    <SkyPopup v-model:visible="showPopup" class="sky-select__popup">
+    <SkyPopup
+      v-if="hasLoadOption"
+      v-model:visible="showPopup"
+      class="sky-select__popup"
+    >
       <slot />
     </SkyPopup>
   </div>
@@ -24,7 +28,7 @@ export default {
 </script>
 
 <script setup>
-import { getCurrentInstance, provide, ref } from 'vue';
+import { getCurrentInstance, nextTick, provide, ref } from 'vue';
 
 const vmSelect = provide('vmSelect', getCurrentInstance());
 
@@ -33,11 +37,25 @@ const props = defineProps({
     type: [String, Number],
     required: true,
   },
+
+  // 延迟（初始化不）渲染 options DOM
+  lazyOption: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(['update:value', 'change']);
 
 const showPopup = ref(false);
+const hasLoadOption = ref(!props.lazyOption);
+
+function onClick() {
+  hasLoadOption.value = true;
+  nextTick(() => {
+    showPopup.value = !showPopup.value;
+  });
+}
 
 function handleChange(value) {
   emit('update:value', value);
