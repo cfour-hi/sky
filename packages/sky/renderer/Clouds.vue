@@ -1,13 +1,13 @@
 <template>
   <div
     ref="elRoot"
-    :class="toCloudClass(cloud)"
     class="sky-cloud sky-clouds sky-bird"
-    :data-cloud-id="cloud.id"
+    :data-cloud-id="props.cloud.id"
+    :style="rootStyle"
   >
     <!-- resize 时 scale -->
     <div>
-      <template v-for="subCloud in cloud.clouds" :key="subCloud.id">
+      <template v-for="subCloud in props.cloud.clouds" :key="subCloud.id">
         <Clouds
           v-if="subCloud.type === 'clouds'"
           :cloud="subCloud"
@@ -29,18 +29,8 @@ export default {
 </script>
 
 <script setup>
-import {
-  getCurrentInstance,
-  inject,
-  onMounted,
-  onBeforeUnmount,
-  ref,
-} from 'vue';
-import { SKY_CLOUD_LOCK, CLOUD_RENDER_DIRECTIONS } from '../constants';
+import { computed, ref, onMounted } from 'vue';
 import Cloud from './Cloud.vue';
-import { toCloudReflowStyle } from './helper';
-
-const sky = inject('sky');
 
 const props = defineProps({
   cloud: {
@@ -49,33 +39,24 @@ const props = defineProps({
   },
 });
 
-const skyHooks = {
-  moveable: {
-    renderDirections: [...CLOUD_RENDER_DIRECTIONS],
-    keepRatio: [...CLOUD_RENDER_DIRECTIONS],
-  },
-};
-
 const elRoot = ref();
 
-onMounted(() => {
-  const vm = getCurrentInstance();
-  sky.cloudVM[props.cloud.id] = vm;
-  sky.birdVM[props.cloud.id] = vm;
-
-  Object.assign(elRoot.value.style, toCloudReflowStyle(props.cloud));
-});
-
-onBeforeUnmount(() => {
-  Reflect.deleteProperty(sky.cloudVM, props.cloud.id);
-  Reflect.deleteProperty(sky.birdVM, props.cloud.id);
-});
-
-function toCloudClass(cloud) {
+const rootStyle = computed(() => {
   return {
-    [SKY_CLOUD_LOCK]: cloud.lock,
+    opacity: props.cloud.opacity,
   };
-}
+});
 
-defineExpose({ skyHooks });
+onMounted(() => {
+  // 不做成 computed
+  // cloud width height top left 变更
+  // 调用 sky.cloud.updateCloudsElementRect 更新 sky-cloud
+  // 避免不必要开销
+  Object.assign(elRoot.value.style, {
+    width: `${props.cloud.width}px`,
+    height: `${props.cloud.height}px`,
+    top: `${props.cloud.top}px`,
+    left: `${props.cloud.left}px`,
+  });
+});
 </script>

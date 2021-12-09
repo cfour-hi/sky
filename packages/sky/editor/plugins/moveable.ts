@@ -234,13 +234,13 @@ export default function createMoveable(sky: Sky) {
 
     const { target, top, left } = event;
 
+    // 必须同步操作
     target.style.top = n2px(top);
     target.style.left = n2px(left);
 
     const cloud = sky.state.clouds.find(
       (cloud) => cloud.id === target.dataset.cloudId,
     ) as Cloud;
-
     cloud.top = top;
     cloud.left = left;
 
@@ -285,9 +285,9 @@ export default function createMoveable(sky: Sky) {
     // console.log('onResize', event);
 
     const { target, width, height, drag, datas } = event;
-
     datas.scale = [width / datas.startWidth, height / datas.startHeight];
 
+    // 必须同步操作
     target.style.width = n2px(width);
     target.style.height = n2px(height);
 
@@ -302,9 +302,9 @@ export default function createMoveable(sky: Sky) {
         'left top';
     }
 
-    datas.birdVM?.exposed?.skyHooks?.moveable?.onResize?.(event);
-
     onDrag(drag);
+
+    datas.birdVM?.exposed?.skyHooks?.moveable?.onResize?.(event);
   };
 
   const onResizeEnd = (event: OnResizeEnd): void => {

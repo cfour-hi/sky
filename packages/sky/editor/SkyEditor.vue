@@ -1,6 +1,10 @@
 <template>
   <div ref="elRoot" class="sky-editor" :style="rootStyle">
-    <SkyRenderer ref="elSkyRenderer" :state="sky.state" />
+    <SkyRenderer
+      ref="elSkyRenderer"
+      :state="sky.state"
+      :cloud-components="{ Cloud, Clouds }"
+    />
     <ControlPanelContainer class="sky-control-panel" />
   </div>
 </template>
@@ -23,6 +27,8 @@ import {
   getCurrentInstance,
 } from 'vue';
 import { isBackgroundElement, isLockCloudElement } from './helper';
+import Cloud from './Cloud.vue';
+import Clouds from './Clouds.vue';
 
 const sky = inject('sky');
 sky.vm = getCurrentInstance();

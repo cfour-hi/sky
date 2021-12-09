@@ -76,8 +76,7 @@ async function loadPSD(file) {
 
   sky.setState({ ...data, clouds, scale: 1 });
 
-  await nextTick();
-  handleAdaptive();
+  setTimeout(handleAdaptive);
 }
 
 async function handlePSD() {

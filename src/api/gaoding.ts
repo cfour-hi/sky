@@ -1,8 +1,12 @@
 import httpRequest from '@/plugins/http-request';
-import { GAODING_API_V2, GAODING_FONTER } from '@/constants/api';
+import {
+  ZNLBWO_XYZ_CORS,
+  GAODING_API_V2,
+  GAODING_FONTER,
+} from '@/constants/api';
 
 export const getFonts = async (pageNum: number): Promise<any> => {
-  return await httpRequest.get(`${GAODING_API_V2}/fonts`, {
+  return await httpRequest.get(`${ZNLBWO_XYZ_CORS}${GAODING_API_V2}/fonts`, {
     params: {
       type: 'font',
       page_size: 100,

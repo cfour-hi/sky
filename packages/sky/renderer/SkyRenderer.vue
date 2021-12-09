@@ -26,14 +26,18 @@ import { SKY_BACKGROUND } from '../constants';
 
 const props = defineProps({
   state: Object,
+  cloudComponents: {
+    type: Object,
+    default: () => ({}),
+  },
 });
 
 const backgroundClass = [SKY_BACKGROUND];
 
 function toComponent(cloud) {
   if (cloud.type === 'clouds') {
-    return Clouds;
+    return props.cloudComponents.Clouds || Clouds;
   }
-  return Cloud;
+  return props.cloudComponents.Cloud || Cloud;
 }
 </script>

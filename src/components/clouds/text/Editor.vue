@@ -136,6 +136,9 @@ function onResize(event) {
       fontSize: `${props.cloud.fontSize}px`,
       letterSpacing: `${props.cloud.letterSpacing}px`,
     });
+    props.cloud.texts.forEach((text) => {
+      if (text.fontSize) Reflect.deleteProperty(text, 'fontSize');
+    });
   }
 }
 
