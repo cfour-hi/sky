@@ -1,9 +1,4 @@
 {
-  "files.insertFinalNewline": true,
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "css.validate": false,
-  "editor.quickSuggestions": {
-    "strings": true
-  }
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

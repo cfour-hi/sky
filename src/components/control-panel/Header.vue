@@ -1,3 +1,10 @@
+<template>
+  <div class="header">
+    <svg-icon v-if="showBack" filename="arrow-left" @click="$emit('back')" />
+    <div>{{ title }}</div>
+  </div>
+</template>
+
 <script>
 export default {
   name: 'ControlPanelHeader',
@@ -20,16 +27,9 @@ defineProps({
 defineEmits(['back']);
 </script>
 
-<template>
-  <div class="header">
-    <svg-icon v-if="showBack" filename="arrow-left" @click="emit('back')" />
-    <div>{{ title }}</div>
-  </div>
-</template>
-
 <style lang="scss" scoped>
 .header {
-  .el-icon-arrow-left {
+  .svg-icon__arrow-left {
     @apply mr-2 cursor-pointer;
   }
 

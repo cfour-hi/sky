@@ -142,8 +142,12 @@
           <svg-icon filename="text-distortion" />
         </SkyButton>
       </div>
+
+      <div @click="onClickAdvanced">高级</div>
     </div>
   </div>
+
+  <AdvancedPanelVue v-if="showAdvancedPanel" @back="onBackMainPanel" />
 </template>
 <script>
 export default {
@@ -169,6 +173,7 @@ import { splitText, setRange, getTextSelection } from './helper';
 import { hasDiffValue, hasSameValue } from '@/utils/tool';
 import { assign } from '@packages/sky/tool';
 import { WRITING_MODE } from '@/constants';
+import AdvancedPanelVue from './control-panel/AdvancedPanel.vue';
 
 const refSelectFontFamily = ref();
 const refRoot = ref();
@@ -406,6 +411,16 @@ function onChangeLineHeight(value) {
     }
   });
   sky.cloud.updateCloudsElementRect();
+}
+
+const showAdvancedPanel = ref(false);
+
+function onClickAdvanced() {
+  showAdvancedPanel.value = true;
+}
+
+function onBackMainPanel() {
+  showAdvancedPanel.value = false;
 }
 
 document.onselectionchange = () => {
