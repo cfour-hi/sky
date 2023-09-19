@@ -1,6 +1,6 @@
 import 'normalize.css';
 import 'animate.css';
-import '@/index.css';
+import './index.css';
 import 'virtual:svg-icons-register';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';

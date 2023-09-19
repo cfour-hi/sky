@@ -1,7 +1,7 @@
 import { sky } from '@/plugins/sky';
 import { skyRendererStyle } from '@packages/sky/renderer';
-import cloudImageCSS from '@/components/clouds/image/index.css';
-import cloudTextCSS from '@/components/clouds/text/index.css';
+import cloudImageCSS from '@/components/clouds/image/index.css?inline';
+import cloudTextCSS from '@/components/clouds/text/index.css?inline';
 import { generateFontStyle, filterSkyFonts } from '@/utils/font';
 import { useFontStore, Font } from '@/stores/font';
 import { blob2Base64 } from '@/utils/dataer';
@@ -19,7 +19,7 @@ function compression(str: string) {
 
 const svgStyle =
   '<style>' +
-  compression(skyRendererStyle.default) +
+  compression(skyRendererStyle as unknown as string) +
   compression(cloudImageCSS) +
   compression(cloudTextCSS) +
   '</style>';

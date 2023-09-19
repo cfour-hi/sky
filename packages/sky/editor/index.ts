@@ -94,8 +94,8 @@ export default function createSky(options: CreateSkyOptions): Sky {
 }
 
 interface InstallOptions {
-  ControlPanelContainer?: DefineComponent;
-  components?: { [propname: string]: DefineComponent };
+  ControlPanelContainer?: any;
+  components?: { [key: string]: any };
 }
 
 export const skyVuePlugin = {

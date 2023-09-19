@@ -1,9 +1,9 @@
-import { CloudText } from './type';
+// import { CloudText } from './type';
 import { TextItem } from './create';
 
-interface ProxyCloud extends CloudText {
-  isMultipleColor?: boolean;
-}
+// interface ProxyCloud extends CloudText {
+//   isMultipleColor?: boolean;
+// }
 
 export function getTextSelection() {
   const selection = document.getSelection() as Selection;

@@ -53,7 +53,7 @@ export default function createHistory(sky: Sky) {
     if (module.disable) return;
 
     clearTimeout(historyTimer);
-    historyTimer = setTimeout(() => {
+    historyTimer = window.setTimeout(() => {
       if (module.pointer > 0) {
         module.stacks.splice(0, module.pointer);
       }

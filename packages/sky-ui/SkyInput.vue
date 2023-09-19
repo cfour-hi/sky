@@ -97,10 +97,10 @@ function handleChange(event) {
       @apply m-0;
     }
 
-    /* Firefox */
-    &[type='number'] {
-      -moz-appearance: textfield;
-    }
+    // /* Firefox */
+    // &[type='number'] {
+    //   -moz-appearance: textfield;
+    // }
   }
 
   &--small {
