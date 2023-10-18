@@ -1,3 +1,9 @@
+<template>
+  <div class="cloud__image">
+    <img :src="cloud.src" alt="" class="image__content" />
+  </div>
+</template>
+
 <script>
 export default {
   name: 'CloudImage',
@@ -13,8 +19,4 @@ const props = defineProps({
 });
 </script>
 
-<template>
-  <div class="cloud__image">
-    <img :src="cloud.src" alt="" class="image__content" />
-  </div>
-</template>
+<style src="./index.css"></style>

@@ -1,3 +1,21 @@
+<template>
+  <div class="sky-input" :class="[...rootClass, attrs.class]">
+    <input
+      ref="elInput"
+      class="sky-input__inner"
+      :type="type"
+      :value="value"
+      v-bind="$attrs"
+      @input="handleInput"
+      @change="handleChange"
+    />
+
+    <div v-if="$slots.append" class="sky-input__append flex-center">
+      <slot name="append" />
+    </div>
+  </div>
+</template>
+
 <script>
 export default {
   name: 'SkyInput',
@@ -54,24 +72,6 @@ function handleChange(event) {
   });
 }
 </script>
-
-<template>
-  <div class="sky-input" :class="[...rootClass, attrs.class]">
-    <input
-      ref="elInput"
-      class="sky-input__inner"
-      :type="type"
-      :value="value"
-      v-bind="$attrs"
-      @input="handleInput"
-      @change="handleChange"
-    />
-
-    <div v-if="$slots.append" class="sky-input__append flex-center">
-      <slot name="append" />
-    </div>
-  </div>
-</template>
 
 <style lang="scss" scoped>
 .sky-input {

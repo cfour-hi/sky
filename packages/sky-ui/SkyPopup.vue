@@ -11,7 +11,6 @@
 
 <script>
 import mixinPopup from './mixins/popup';
-import { OnClickOutside } from '@vueuse/components';
 
 export default {
   name: 'SkyPopup',
@@ -21,6 +20,7 @@ export default {
 
 <script setup>
 import { computed } from 'vue';
+import { OnClickOutside } from '@vueuse/components';
 
 const props = defineProps({
   visible: {

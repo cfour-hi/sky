@@ -1,3 +1,7 @@
+<template>
+  <CloudImage v-bind="$attrs" />
+</template>
+
 <script>
 export default {
   name: 'CloudImageEditor',
@@ -15,7 +19,3 @@ const skyHooks = {
 
 defineExpose({ skyHooks });
 </script>
-
-<template>
-  <CloudImage v-bind="$attrs" />
-</template>

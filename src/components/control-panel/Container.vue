@@ -33,7 +33,7 @@
         <SkyButton
           plain
           :disabled="cloud0.lock"
-          @pointerdown.stop="showLayerPopup = !showLayerPopup"
+          @click.stop="showLayerPopup = !showLayerPopup"
         >
           <SkyTooltip content="图层顺序" />
           <svg-icon filename="layer" />

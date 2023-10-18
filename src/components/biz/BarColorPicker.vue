@@ -1,7 +1,7 @@
 <template>
   <div
     class="bar__color-picker"
-    @pointerdown.stop="showSkyColorPicker = !showSkyColorPicker"
+    @click.stop="showSkyColorPicker = !showSkyColorPicker"
   >
     <div
       class="relative h-6 rounded cursor-pointer"
@@ -10,11 +10,7 @@
       <div v-if="multiple" class="multiple-mask flex-center">多种颜色</div>
     </div>
 
-    <SkyPopup
-      v-model:visible="showSkyColorPicker"
-      :width="256"
-      @pointerdown.stop
-    >
+    <SkyPopup v-model:visible="showSkyColorPicker" :width="256" @click.stop>
       <SkyColorPicker
         :straw-el="strawEl"
         :straw-css="strawCSS"

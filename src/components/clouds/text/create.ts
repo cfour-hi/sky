@@ -23,7 +23,7 @@ export interface CloudText extends Cloud {
   texts: TextItem[];
   type: string;
   letterSpacing: number;
-  [propsName: string]: unknown;
+  [key: string]: unknown;
 }
 
 export default function createTextCloud(props = {}): CloudText {

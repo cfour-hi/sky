@@ -229,6 +229,19 @@ function changeCloudProp(key, value, defaultValue) {
   targetClouds.forEach((cloud) => {
     cloud[key] = result;
   });
+
+  nextTick(() => {
+    // 以下属性会变更元素大小
+    if (['fontSize', 'lineHeight', 'letterSpacing'].includes(key)) {
+      const { firstElementChild } = sky.birdVM[targetCloud0.id].subTree.el;
+      targetCloud0.width = firstElementChild.clientWidth * sky.state.scale;
+      targetCloud0.height = firstElementChild.clientHeight * sky.state.scale;
+    }
+
+    nextTick(() => {
+      sky.moveable.instance.updateRect();
+    });
+  });
 }
 
 function changeCloudTextsProp(texts, key, value, defaultValue) {

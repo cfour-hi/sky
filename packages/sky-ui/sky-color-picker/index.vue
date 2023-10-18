@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <div class="flex justify-between mt-3.5">
+    <div class="flex justify-between mt-3">
       <SkyButton size="small" @click="onClickStraw">
         <svg-icon filename="straw" />
       </SkyButton>

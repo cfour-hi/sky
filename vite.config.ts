@@ -5,7 +5,7 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // base: '/sky/',
+  base: '/sky/',
   plugins: [
     vue(),
     createSvgIconsPlugin({
@@ -17,8 +17,11 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': './src',
-      '@packages': './packages',
+      '@': path.resolve(__dirname, 'src'),
+      '@packages': path.resolve(__dirname, 'packages'),
     },
+  },
+  server: {
+    port: 50014,
   },
 });

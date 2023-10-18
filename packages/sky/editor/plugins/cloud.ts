@@ -18,7 +18,7 @@ export interface Cloud {
   transform?: string;
   minDistance?: number;
   clouds?: Cloud[];
-  [propsName: string]: any;
+  [key: string]: any;
 }
 
 export interface CloudPlugin {
@@ -62,7 +62,10 @@ export interface CloudPlugin {
 export default function createCloud(sky: Sky) {
   const module: CloudPlugin = {} as unknown as CloudPlugin;
 
-  // 还原到画布未缩放的数据
+  /**
+   * 还原到画布未缩放的数据
+   * @returns
+   */
   module.getClouds = () => {
     const { scale, clouds } = sky.state;
     const _clouds: Cloud[] = JSON.parse(JSON.stringify(clouds));

@@ -56,6 +56,7 @@ export default function createSky(options: CreateSkyOptions): Sky {
     cloudVM: {},
     birdVM: {},
   } as unknown as Sky;
+
   module.state = {
     width: 800,
     height: 800,
@@ -63,16 +64,19 @@ export default function createSky(options: CreateSkyOptions): Sky {
     bgStyle: {},
     clouds: [],
   };
+
   module.runtime = {
     targetClouds: [],
     selectCloud: null,
     clipboard: '',
   };
+
   module.editor = createEditor(module);
   module.cloud = createCloud(module);
   module.moveable = createMoveable(module);
   module.selecto = createSelecto(module);
   module.history = createHistory(module);
+
   module.setState = async (state) => {
     if (Reflect.has(state, 'width')) {
       module.moveable.instance.verticalGuidelines = [0, state.width];
@@ -89,6 +93,7 @@ export default function createSky(options: CreateSkyOptions): Sky {
     }
     Object.assign(module.state, state);
   };
+
   options.initMousetrap?.(module);
   return module;
 }

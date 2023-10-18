@@ -29,7 +29,7 @@ export default {
 </script>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watchEffect } from 'vue';
 import Cloud from './Cloud.vue';
 
 const props = defineProps({
@@ -48,15 +48,13 @@ const rootStyle = computed(() => {
 });
 
 onMounted(() => {
-  // 不做成 computed
-  // cloud width height top left 变更
-  // 调用 sky.cloud.updateCloudsElementRect 更新 sky-cloud
-  // 避免不必要开销
-  Object.assign(elRoot.value.style, {
-    width: `${props.cloud.width}px`,
-    height: `${props.cloud.height}px`,
-    top: `${props.cloud.top}px`,
-    left: `${props.cloud.left}px`,
+  watchEffect(() => {
+    Object.assign(elRoot.value.style, {
+      width: `${props.cloud.width}px`,
+      height: `${props.cloud.height}px`,
+      top: `${props.cloud.top}px`,
+      left: `${props.cloud.left}px`,
+    });
   });
 });
 </script>

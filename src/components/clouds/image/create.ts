@@ -13,7 +13,7 @@ const GIFS = [
 export interface CloudImage extends Cloud {
   src: string;
   mime: string;
-  [propsName: string]: unknown;
+  [key: string]: unknown;
 }
 
 export default function createCloudImage(props = {}): CloudImage {

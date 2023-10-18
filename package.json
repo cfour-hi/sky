@@ -13,11 +13,11 @@
     "axios": "^0.23.0",
     "gifuct-js": "^2.1.2",
     "mousetrap": "^1.6.5",
-    "moveable": "^0.27.2",
+    "moveable": "^0.51.2",
     "normalize.css": "^8.0.1",
     "pinia": "^2.1.6",
     "progressbar.js": "^1.1.0",
-    "selecto": "^1.13.0",
+    "selecto": "^1.26.0",
     "vue": "^3.3.4"
   },
   "devDependencies": {

@@ -19,7 +19,7 @@ function compression(str: string) {
 
 const svgStyle =
   '<style>' +
-  compression(skyRendererStyle as unknown as string) +
+  compression(skyRendererStyle.default) +
   compression(cloudImageCSS) +
   compression(cloudTextCSS) +
   '</style>';

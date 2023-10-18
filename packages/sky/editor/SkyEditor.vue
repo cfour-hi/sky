@@ -99,8 +99,10 @@ async function mouseup(event) {
   mousedownTarget = null;
 }
 
-// 点击左键的时候就需要获取目标图层，但是不选中
-// 等到 mousemove or mouseup 的时候再选中
+/**
+ * 点击左键的时候就需要获取目标图层，但是不选中
+ * 等到 mousemove or mouseup 的时候再选中
+ */
 function onMousedownLeft(event) {
   mousedownEvent = event;
   mousedownTarget = sky.moveable.getTarget(event);

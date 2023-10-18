@@ -55,7 +55,7 @@ export default {
 </script>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch, watchEffect } from 'vue';
 import { WRITING_MODE } from '@/constants';
 
 const props = defineProps({
@@ -88,11 +88,13 @@ const textContentStyle = computed(() => {
 });
 
 onMounted(() => {
-  // 以下属性都会影响图层尺寸，要求同步更新
-  Object.assign(elTextContent.value.style, {
-    fontSize: `${props.cloud.fontSize}px`,
-    lineHeight: props.cloud.lineHeight,
-    letterSpacing: `${props.cloud.letterSpacing}px`,
+  watchEffect(() => {
+    // 以下属性会变更元素大小
+    Object.assign(elTextContent.value.style, {
+      fontSize: `${props.cloud.fontSize}px`,
+      lineHeight: props.cloud.lineHeight,
+      letterSpacing: `${props.cloud.letterSpacing}px`,
+    });
   });
 });
 

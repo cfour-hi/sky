@@ -30,7 +30,7 @@ export interface MoveablePlugin {
   getTarget(event: any): HTMLElement[];
   setTarget(target: HTMLElement[] | null): void;
   updateState(): void;
-  [propsName: string]: any;
+  [key: string]: any;
 }
 
 const DIRECTION = {
@@ -131,8 +131,7 @@ export default function createMoveable(sky: Sky) {
       if (isEqualArray(target, oldTarget)) return;
       module.instance.target = target;
 
-      // FIXME: moveable target 的赋值有 setTimeout 延迟
-      await sleep();
+      await module.instance.waitToChangeTarget();
 
       const targetClouds = target.map((el) =>
         sky.cloud.findCloudById(el.dataset.cloudId),
