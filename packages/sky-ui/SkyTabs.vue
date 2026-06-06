@@ -79,6 +79,7 @@ defineExpose({ tabs });
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-tabs__header {
   @apply p-0.5 mb-3 rounded bg-gray-100 cursor-pointer;
 }

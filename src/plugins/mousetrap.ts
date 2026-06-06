@@ -97,7 +97,7 @@ export default function initMousetrap(sky: Sky) {
     saveTemplate2Local(sky.state);
   });
 
-  Mousetrap.bind(`${IS_MAC ? 'command' : 'ctrl'}+a`, async (e) => {
+  Mousetrap.bind(`${IS_MAC ? 'command' : 'ctrl'}+a`, (e) => {
     e.preventDefault();
 
     const elSkyRenderer = document.querySelector(
@@ -108,6 +108,6 @@ export default function initMousetrap(sky: Sky) {
     const target = Array.from(elSkyRenderer.children).filter(
       (el) => (el as HTMLElement).dataset.cloudId,
     );
-    await sky.moveable.setTarget(target as HTMLElement[]);
+    void sky.moveable.setTarget(target as HTMLElement[]);
   });
 }

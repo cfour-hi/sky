@@ -467,29 +467,26 @@ document.onselectionchange = () => {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .bar__font {
   @apply flex justify-between;
 
   .select__font-family {
-    :deep {
-      .sky-input__inner {
-        @apply text-transparent cursor-pointer;
-      }
+    :deep(.sky-input__inner) {
+      @apply text-transparent cursor-pointer;
     }
   }
 
   .sky-input__number {
     width: 60px;
 
-    :deep {
-      .sky-input__number--increase,
-      .sky-input__number--decrease {
-        @apply w-4;
-      }
+    :deep(.sky-input__number--increase),
+    :deep(.sky-input__number--decrease) {
+      @apply w-4;
+    }
 
-      .sky-input .sky-input__inner {
-        @apply pl-2 pr-4;
-      }
+    :deep(.sky-input .sky-input__inner) {
+      @apply pl-2 pr-4;
     }
   }
 }

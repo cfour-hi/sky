@@ -45,6 +45,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-tooltip {
   @apply absolute;
 

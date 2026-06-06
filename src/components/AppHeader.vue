@@ -160,6 +160,7 @@ function handleAfterClose() {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .app-header {
   height: var(--app-header-height);
   background: #fff;

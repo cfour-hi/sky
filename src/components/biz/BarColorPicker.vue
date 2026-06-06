@@ -49,6 +49,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .bar__color-picker {
   background: linear-gradient(
       to top right,

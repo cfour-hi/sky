@@ -15,6 +15,7 @@ import ControlPanelHeader from '@/components/control-panel/Header.vue';
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .subcontrol-panel__advanced-text {
   @apply absolute top-0 w-full h-full bg-white z-10;
 }

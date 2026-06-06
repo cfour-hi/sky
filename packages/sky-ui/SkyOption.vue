@@ -45,6 +45,7 @@ function handleClick() {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-option {
   @apply py-1.5 px-3 text-blue-700 cursor-pointer;
 

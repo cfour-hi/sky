@@ -125,6 +125,7 @@ function handleClickDelete() {
 </script>
 
 <style lang="scss">
+@reference "tailwindcss";
 .control-panel__container {
   top: var(--app-header-height);
   width: var(--aside-control-width);

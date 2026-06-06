@@ -26,6 +26,7 @@ const iconName = computed(() => `#svg-icon__${props.filename}`);
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .svg-icon {
   width: 1em;
   height: 1em;

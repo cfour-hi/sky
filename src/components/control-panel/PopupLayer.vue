@@ -140,6 +140,7 @@ function handleMoveUp() {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .layer-step {
   @apply absolute w-full h-1.5 top-0.5;
 

@@ -67,6 +67,7 @@ defineExpose({ handleChange });
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-select {
   @apply relative;
 
@@ -74,7 +75,7 @@ defineExpose({ handleChange });
     @apply absolute top-0 right-0 bottom-0 w-6 text-lg text-gray-300 cursor-pointer;
   }
 
-  :deep .sky-input__inner {
+  :deep(.sky-input__inner) {
     @apply pr-6;
 
     &:read-only {

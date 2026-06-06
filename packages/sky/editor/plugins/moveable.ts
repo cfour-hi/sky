@@ -13,7 +13,7 @@ import Moveable, {
   OnRotate,
   OnRotateGroup,
 } from 'moveable';
-import { lookUpTopCloudElement, isBackgroundElement } from '../helper';
+import { lookUpTopCloudElement } from '../helper';
 import {
   n2px,
   hop,
@@ -22,7 +22,6 @@ import {
   difference,
 } from '../../tool';
 import { CLOUD_RENDER_DIRECTIONS } from '../../constants';
-import { sleep } from '../tool';
 
 export interface MoveablePlugin {
   instance: Moveable;
@@ -207,7 +206,7 @@ export default function createMoveable(sky: Sky) {
       });
 
       const minDistance = Math.min(...distances);
-      if (hop(cloud, 'minDistance')) {
+      if (hop(cloud as unknown as Record<string, unknown>, 'minDistance')) {
         cloud.minDistance = minDistance;
       } else {
         Object.defineProperty(cloud, 'minDistance', {
@@ -324,7 +323,7 @@ export default function createMoveable(sky: Sky) {
         el.style.width = n2px(cloud.width);
         el.style.height = n2px(cloud.height);
 
-        if (cloud.clouds) {
+        if (sky.cloud.isCloudsObject(cloud)) {
           update(cloud.clouds);
         } else {
           const vm = sky.birdVM[cloud.id];

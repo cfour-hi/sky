@@ -74,6 +74,7 @@ function handleChange(event) {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-input {
   @apply relative inline-block;
 

@@ -32,7 +32,7 @@ export default function createEditor(sky: Sky) {
         cloud.top = top;
         cloud.left = left;
 
-        if (cloud.clouds && cloud.clouds.length > 0) {
+        if (sky.cloud.isCloudsObject(cloud) && cloud.clouds.length > 0) {
           zoomClouds(cloud.clouds);
         }
       });

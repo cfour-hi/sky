@@ -62,6 +62,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 $base: '.sky-progress';
 
 #{$base} {
@@ -70,6 +71,7 @@ $base: '.sky-progress';
 </style>
 
 <style lang="scss">
+@reference "tailwindcss";
 $base: '.sky-progress';
 
 #{$base} {

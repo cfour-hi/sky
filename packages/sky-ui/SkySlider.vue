@@ -116,6 +116,7 @@ function onChangeValue(position) {
 </template>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-slider {
   @apply relative h-4 cursor-pointer;
 

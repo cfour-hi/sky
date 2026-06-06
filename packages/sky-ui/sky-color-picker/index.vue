@@ -509,6 +509,7 @@ function onChangeColor() {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-color-picker {
   @apply select-none;
 }

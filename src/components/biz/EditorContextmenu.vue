@@ -307,6 +307,7 @@ function handleClickDelete() {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .editor-contextmenu {
   z-index: 3000;
   @apply fixed w-48 py-2 text-sm rounded bg-white shadow cursor-default select-none;

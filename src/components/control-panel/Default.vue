@@ -91,6 +91,7 @@ function onChangeBgImage() {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .size {
   @apply flex justify-between mb-5;
 

@@ -44,6 +44,7 @@ const rootStyle = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-popup {
   z-index: 3002;
   transform: translateX(-50%);

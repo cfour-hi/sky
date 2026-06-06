@@ -72,6 +72,7 @@ function handleClick() {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .button__group {
   @apply w-full bg-blue-50 border-blue-200 text-blue-700 font-bold;
 }

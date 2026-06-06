@@ -22,6 +22,7 @@ const skyEditorContainerStyle = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .app-main {
   @apply absolute bg-gray-100 overflow-auto;
 

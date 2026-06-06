@@ -85,6 +85,7 @@ async function handleClickMask() {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-dialog {
   z-index: 3002;
   @apply fixed top-0 right-0 bottom-0 left-0;
@@ -107,6 +108,6 @@ async function handleClickMask() {
 }
 
 .mask {
-  @apply absolute w-full h-full bg-black bg-opacity-60;
+  @apply absolute w-full h-full bg-black/60;
 }
 </style>

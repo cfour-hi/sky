@@ -28,6 +28,7 @@ defineEmits(['back']);
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .header {
   .svg-icon__arrow-left {
     @apply mr-2 cursor-pointer;

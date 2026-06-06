@@ -110,7 +110,7 @@ export const skyVuePlugin = {
     sky.runtime = reactive(sky.runtime);
 
     app.use(skyRendererVuePlugin, options.components);
-    app.component(SkyEditorComponent.name, SkyEditorComponent);
+    app.component('SkyEditor', SkyEditorComponent);
     app.provide('sky', sky);
 
     if (options.ControlPanelContainer) {

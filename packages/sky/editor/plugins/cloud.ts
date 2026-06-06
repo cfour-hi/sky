@@ -4,8 +4,10 @@ import { genRandomCode, sleep, withCtrlOrShiftKey } from '../../tool';
 import { lookUpParentCloudElement } from '../helper';
 import { n2px } from '../../tool';
 
-export interface Cloud {
-  type: string;
+export type CloudKind = 'text' | 'image' | 'clouds';
+
+export interface BaseCloud {
+  type: CloudKind;
   id: string;
   pid: string;
   top: number;
@@ -17,9 +19,68 @@ export interface Cloud {
   rotate?: number;
   transform?: string;
   minDistance?: number;
-  clouds?: Cloud[];
-  [key: string]: any;
 }
+
+export type TextAlign = 'left' | 'center' | 'right' | 'justify';
+export type TextDecoration = 'none' | 'underline' | 'line-through';
+export type WritingMode = 'horizontal-tb' | 'vertical-rl';
+export type FontStyle = 'normal' | 'italic';
+export type ImageMime = 'image/gif' | 'image/png' | 'image/jpeg' | 'image/webp';
+
+export interface TextItem {
+  text: string;
+  color?: string;
+  fontFamily?: string;
+  fontSize?: number;
+  fontWeight?: string | number;
+  fontStyle?: FontStyle;
+  textDecoration?: TextDecoration;
+}
+
+export interface ShadowStyle {
+  color?: string;
+  offsetX?: number;
+  offsetY?: number;
+  blur?: number;
+}
+
+export interface StrokeStyle {
+  color?: string;
+  width?: number;
+}
+
+export interface TextCloud extends BaseCloud {
+  type: 'text';
+  fontFamily: string;
+  fontSize: number;
+  textAlign: TextAlign;
+  color: string;
+  textDecoration: TextDecoration;
+  writingMode: WritingMode;
+  fontWeight: string | number;
+  fontStyle: FontStyle;
+  lineHeight: number;
+  shadows: ShadowStyle[];
+  strokes: StrokeStyle[];
+  text: string;
+  texts: TextItem[];
+  letterSpacing: number;
+}
+
+export interface ImageCloud extends BaseCloud {
+  type: 'image';
+  src: string;
+  mime: ImageMime;
+}
+
+export interface GroupCloud extends BaseCloud {
+  type: 'clouds';
+  clouds: Cloud[];
+}
+
+export type Cloud = TextCloud | ImageCloud | GroupCloud;
+export type CloudDraft<T extends Cloud = Cloud> = Pick<T, 'type'> &
+  Partial<Omit<T, 'type'>>;
 
 export interface CloudPlugin {
   getClouds(): Cloud[];
@@ -29,10 +90,10 @@ export interface CloudPlugin {
   findCloudByElement(dom: HTMLElement): Cloud | undefined;
   queryCloudElementById(id: string): HTMLElement | null;
   updateCloudsElementRect(clouds?: Cloud[]): void;
-  isCloudsObject(cloud: Cloud): boolean;
-  setSelectCloud(event: any): void;
-  create(attrs: any): any;
-  push(...clouds: any[]): void;
+  isCloudsObject(cloud: Cloud): cloud is GroupCloud;
+  setSelectCloud(event: MouseEvent | null): void;
+  create<T extends Cloud>(attrs: CloudDraft<T>): T;
+  push(...clouds: Cloud[]): Promise<void>;
   delete(options?: { force?: boolean }): void;
   toGroup(): void;
   unGroup(): void;
@@ -77,7 +138,7 @@ export default function createCloud(sky: Sky) {
         cloud.width = cloud.width / scale;
         cloud.height = cloud.height / scale;
 
-        if (cloud.clouds && cloud.clouds.length > 0) {
+        if (module.isCloudsObject(cloud) && cloud.clouds.length > 0) {
           restore(cloud.clouds);
         }
       });
@@ -118,7 +179,7 @@ export default function createCloud(sky: Sky) {
 
       sky.moveable.instance.updateTarget();
 
-      if (cloud.clouds && cloud.clouds.length > 0) {
+      if (module.isCloudsObject(cloud) && cloud.clouds.length > 0) {
         module.updateCloudsElementRect(cloud.clouds);
       }
     });
@@ -161,8 +222,9 @@ export default function createCloud(sky: Sky) {
     if (cloud) return cloud;
 
     for (let i = 0; i < clouds.length; i += 1) {
-      if (Array.isArray(clouds[i].clouds)) {
-        cloud = module.findCloudById(id, clouds[i].clouds);
+      const currentCloud = clouds[i];
+      if (module.isCloudsObject(currentCloud)) {
+        cloud = module.findCloudById(id, currentCloud.clouds);
         if (cloud) return cloud;
       }
     }
@@ -179,7 +241,7 @@ export default function createCloud(sky: Sky) {
     return sky.vm.subTree.el.querySelector(`[data-cloud-id="${id}"]`);
   };
 
-  const getSelectCloud = (event: any) => {
+  const getSelectCloud = (event: MouseEvent | null) => {
     if (!event) return null;
 
     const [targetCloud0] = sky.runtime.targetClouds;
@@ -187,7 +249,7 @@ export default function createCloud(sky: Sky) {
     if (!module.isCloudsObject(targetCloud0)) return null;
     if (withCtrlOrShiftKey(event)) return null;
 
-    const el = lookUpParentCloudElement(event.target);
+    const el = lookUpParentCloudElement(event.target as HTMLElement | null);
     if (!el) return null;
 
     const cloud = module.findCloudById(el.dataset.cloudId, targetCloud0.clouds);
@@ -231,16 +293,15 @@ export default function createCloud(sky: Sky) {
     }
   };
 
-  module.create = (attrs) => {
+  module.create = <T extends Cloud>(attrs: CloudDraft<T>): T => {
     attrs = JSON.parse(JSON.stringify(attrs));
     return Object.assign(
       {
         pid: '',
         width: 100,
         height: 100,
-        top: sky.state.height / 2 - (attrs?.height ?? 0 / 2),
-        left: sky.state.width / 2 - (attrs?.width ?? 0 / 2),
-        angle: 0,
+        top: sky.state.height / 2 - (attrs?.height ?? 0) / 2,
+        left: sky.state.width / 2 - (attrs?.width ?? 0) / 2,
         lock: false,
         opacity: 1,
         transform: '',
@@ -249,7 +310,7 @@ export default function createCloud(sky: Sky) {
       {
         id: genRandomCode(),
       },
-    );
+    ) as T;
   };
 
   module.push = async (...clouds) => {
@@ -308,7 +369,9 @@ export default function createCloud(sky: Sky) {
     if (!sky.runtime.clipboard) return;
 
     const copyClouds = (cloud: Cloud) => {
-      cloud.clouds?.forEach((subCloud) => {
+      if (!module.isCloudsObject(cloud)) return;
+
+      cloud.clouds.forEach((subCloud) => {
         subCloud.pid = cloud.id;
         subCloud.id = genRandomCode();
 
@@ -379,6 +442,7 @@ export default function createCloud(sky: Sky) {
       pid: '',
       type: 'clouds',
       lock: false,
+      opacity: 1,
       transform: '',
     });
   };
@@ -387,8 +451,10 @@ export default function createCloud(sky: Sky) {
     const { targetClouds } = sky.runtime;
     if (targetClouds.length === 0) return;
 
-    const { clouds, top, left /* transform */ } = targetClouds[0];
-    if (!clouds) return;
+    const [targetCloud] = targetClouds;
+    if (!module.isCloudsObject(targetCloud)) return;
+
+    const { clouds, top, left /* transform */ } = targetCloud;
 
     await module.delete({ force: true });
 
@@ -483,8 +549,8 @@ export default function createCloud(sky: Sky) {
     clouds.unshift(...targetClouds.reverse());
   };
 
-  module.isCloudsObject = (cloud) => {
-    return cloud.type === 'clouds' && Reflect.has(cloud, 'clouds');
+  module.isCloudsObject = (cloud): cloud is GroupCloud => {
+    return cloud.type === 'clouds' && Array.isArray(cloud.clouds);
   };
 
   module.alignTop = () => {

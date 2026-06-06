@@ -113,10 +113,11 @@ function handleClickArrowDown() {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-input__number {
   @apply relative inline-block;
 
-  $input-inner: ':deep .sky-input__inner:not(:read-only)';
+  $input-inner: ':deep(.sky-input__inner:not(:read-only))';
 
   #{$input-inner} {
     @apply pr-5;

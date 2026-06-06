@@ -13,7 +13,7 @@ const app = createApp(AppComponent);
 (window as any).app = app;
 
 app.use(createPinia());
-app.component(SvgIcon.name, SvgIcon);
+app.component('SvgIcon', SvgIcon);
 app.use(skyUI);
 app.use(skyPlugin);
 

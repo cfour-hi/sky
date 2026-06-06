@@ -37,6 +37,7 @@ const rootClass = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+@reference "tailwindcss";
 .sky-button {
   @apply relative py-2 px-3 text-sm border border-gray-300 rounded;
 

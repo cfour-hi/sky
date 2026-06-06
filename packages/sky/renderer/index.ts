@@ -4,7 +4,7 @@ import './index.css';
 
 export const skyRendererVuePlugin = {
   install(app: App, components?: { [key: string]: ComponentOptions }) {
-    app.component(SkyRenderer.name, SkyRenderer);
+    app.component('SkyRenderer', SkyRenderer);
     app.provide('SkyCloudComponents', components);
   },
 };

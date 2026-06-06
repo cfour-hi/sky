@@ -1,32 +1,18 @@
 import { sky } from '@/plugins/sky';
-import { Cloud } from '@packages/sky/editor/plugins/cloud';
 import { CLOUD_TYPE, DEFAULT_FONT_FAMILY, WRITING_MODE } from '@/constants';
+import type {
+  CloudDraft,
+  TextCloud,
+  TextItem,
+} from '@packages/sky/editor/plugins/cloud';
 
-export interface TextItem {
-  text: string;
-  [porpname: string]: any;
-}
+export type CloudText = TextCloud;
+export type { TextItem };
+export type CreateTextCloudOptions = Partial<Omit<TextCloud, 'type'>>;
 
-export interface CloudText extends Cloud {
-  fontFamily: string;
-  fontSize: number;
-  textAlign: string;
-  color: string;
-  textDecoration: string;
-  writingMode: string;
-  fontWeight: string | number;
-  fontStyle: string;
-  lineHeight: number;
-  shadows: Record<string, unknown>[];
-  strokes: Record<string, unknown>[];
-  text: string;
-  texts: TextItem[];
-  type: string;
-  letterSpacing: number;
-  [key: string]: unknown;
-}
-
-export default function createTextCloud(props = {}): CloudText {
+export default function createTextCloud(
+  props: CreateTextCloudOptions = {},
+): CloudDraft<TextCloud> {
   const { scale } = sky.state;
   return {
     fontFamily: DEFAULT_FONT_FAMILY,
@@ -43,9 +29,9 @@ export default function createTextCloud(props = {}): CloudText {
     strokes: [],
     text: '点击编辑文字',
     texts: [{ text: '点击编辑文字' }],
-    type: CLOUD_TYPE.text,
     width: 360 * scale,
     height: 60 * scale,
     ...props,
-  } as unknown as CloudText;
+    type: CLOUD_TYPE.text,
+  };
 }

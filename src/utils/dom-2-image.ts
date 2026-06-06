@@ -11,6 +11,7 @@ import { MIME } from '@/constants/index';
 import { noop } from '@/utils/tool';
 import { getSubsetFont } from '@/api/gaoding';
 import { CloudText } from '@/components/clouds/text/create';
+import type { ImageCloud } from '@packages/sky/editor/plugins/cloud';
 
 // 移除空行和注释
 function compression(str: string) {
@@ -51,7 +52,8 @@ export async function generateImage(options: GenerateImageOptions) {
 
   // 一张还是多张
   const gifClouds = sky.state.clouds.filter(
-    (cloud) => cloud.type === CLOUD_TYPE.image && cloud.mime === MIME.gif,
+    (cloud): cloud is ImageCloud =>
+      cloud.type === CLOUD_TYPE.image && cloud.mime === MIME.gif,
   );
 
   let blob;
@@ -213,7 +215,7 @@ export async function generateImage(options: GenerateImageOptions) {
     const { dims, patch } = frame;
     const { canvas, ctx } = createCanvas(gifData.width, gifData.height);
     ctx?.putImageData(
-      new ImageData(patch, dims.width, dims.height),
+      new ImageData(new Uint8ClampedArray(patch), dims.width, dims.height),
       dims.left,
       dims.top,
     );
@@ -289,7 +291,7 @@ export async function generateImage(options: GenerateImageOptions) {
     delay: number,
     { fontStyles }: { fontStyles?: string } = {},
   ) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
       const pa = [];
       for (let i = 0; i < length; i += 1) {
         pa.push(addGifFrame(i));
